@@ -347,6 +347,13 @@ footer p{margin:0 0 6px}
 .bkpage.L::after{right:0;background:linear-gradient(90deg,rgba(61,44,29,0),rgba(61,44,29,.09))}
 .bkpage.R::after{left:0;background:linear-gradient(270deg,rgba(61,44,29,0),rgba(61,44,29,.09))}
 
+/* ── 캐릭터 삽화(spot) ─────────────────────────
+   글 아래 남는 세로 공간을 채우는 그림. flex:1 + min-height:0 이라
+   공간이 넉넉하면 크게, 모자라면 줄어들어 쪽 넘침을 만들지 않습니다. */
+.bkpage .spot{flex:1 1 0;min-height:0;align-self:center;max-width:100%;width:auto;
+  object-fit:contain;object-position:center;margin-top:12px}
+.bkpage.quote .spot,.bkpage.dark .spot{border-radius:16px;margin:16px 0 18px}
+
 /* ── 도판 쪽 ─────────────────────────────────
    가로형 캡처 한 장을 어두운 바탕 위에 액자처럼 통째로 앉힙니다. */
 .bkpage.wide{padding:0;background:var(--wall);background-size:contain;
