@@ -58,8 +58,9 @@
               + esc(ch) + '</p>';
       }
       html += '<button class="tocrow" type="button" data-go="' + b.r + '">'
-            + '<span class="n">' + i + '</span>'
-            + '<span class="t">' + esc(b.t) + '</span></button>';
+            + '<span class="t">' + esc(b.t) + '</span>'
+            + '<span class="lead"></span>'
+            + '<span class="n">' + i + '</span></button>';
     });
     $('hub').innerHTML = html;
   }
@@ -155,7 +156,7 @@
       try { var st = e && e.data; document.body.classList.toggle('is-flipping', !!st && st !== 'read'); } catch (_) {}
     });
     if (idx > 0) { try { pf.turnToPage(Math.min(idx, pf.getPageCount() - 1)); } catch (e) {} }
-    syncRail(); fitLive();
+    syncRail(); fitLive(); fitSpots();
   }
 
   function spreadNow() { return pf ? Math.floor(pf.getCurrentPageIndex() / 2) : 0; }
@@ -245,6 +246,28 @@
   addEventListener('resize', fitLive);
   // 이미지가 fitLive 뒤에 로드되면 장치 높이가 달라질 수 있어, 로드가 끝나면 한 번 더 맞춥니다.
   addEventListener('load', fitLive);
+
+  /* ── 삽화를 남는 공간에 맞춤 ──────────────────
+     StPageFlip이 쪽에 display:block을 인라인으로 박아 flex 배치가 무시됩니다.
+     그래서 삽화(.spot)의 높이는 쪽마다 실제로 재서 넣습니다:
+     일부러 2000px로 키워 넘친 양을 재면, 2000 - 넘침 = 쓸 수 있는 높이입니다. */
+  function fitSpots() {
+    document.querySelectorAll('.bkpage').forEach(function (p) {
+      var s = p.querySelector('.spot');
+      // 도판 쪽(.art)의 큰 그림도 같은 방법으로 맞춥니다 (bleed 제외)
+      if (!s && p.classList.contains('art') && !p.classList.contains('bleed')) s = p.querySelector('img');
+      if (!s) return;
+      var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
+      if (hidden) p.style.display = 'block';
+      s.style.display = 'block'; s.style.maxHeight = 'none'; s.style.height = '2000px';
+      var h = 2000 - (p.scrollHeight - p.clientHeight) - 2;
+      if (h < 56) { s.style.display = 'none'; s.style.height = ''; }   // 자리가 없으면 그림을 접습니다
+      else s.style.height = h + 'px';
+      if (hidden) p.style.display = prev;
+    });
+  }
+  addEventListener('resize', fitSpots);
+  addEventListener('load', fitSpots);
 
   function syncRail() {
     var i = pf ? spreadNow() : here();
@@ -629,9 +652,7 @@
         email: $('f-email').value.trim(),
         note:  $('f-note').value.trim(),
         grades: [].slice.call($('f-grades').querySelectorAll('input:checked')).map(function(c){ return c.value; }),
-        agreePrivacy: $('a-privacy').checked,
-        agreeId:      $('a-id').checked,
-        agreeBank:    $('a-bank').checked
+        agreePrivacy: $('a-privacy').checked
       };
 
       var first = null;
@@ -664,6 +685,7 @@
           form.style.display = 'none';
           $('doneWho').textContent = v.name + ' 선생님(' + v.org + ')으로 접수했습니다.';
           $('applyDone').style.display = 'block';
+          fitSpots();   // 완료 상자가 열리며 자리가 줄었으니 삽화를 다시 맞춥니다
           $('applyDone').scrollIntoView({ block:'center', behavior:'smooth' });
         } else {
           btn.disabled = false; btn.textContent = '신청하고 계정 받기';

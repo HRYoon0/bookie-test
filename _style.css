@@ -106,7 +106,7 @@ h2{font-size:clamp(24px,3.4vw,36px);line-height:1.35;margin:0 0 18px}
 
 .feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:26px}
 .feat{background:var(--card);padding:24px}
-.feat .n{font-family:var(--display);font-style:italic;font-size:26px;color:var(--brand);line-height:1;margin-bottom:10px}
+.feat .n{font-family:var(--serif);font-style:normal;font-weight:700;font-size:26px;color:var(--brand);line-height:1;margin-bottom:10px}
 .feat h4{font-family:var(--serif);font-size:16.5px;color:var(--ink);margin:0 0 8px;line-height:1.5}
 .feat p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
 
@@ -348,11 +348,18 @@ footer p{margin:0 0 6px}
 .bkpage.R::after{left:0;background:linear-gradient(270deg,rgba(61,44,29,0),rgba(61,44,29,.09))}
 
 /* ── 캐릭터 삽화(spot) ─────────────────────────
-   글 아래 남는 세로 공간을 채우는 그림. flex:1 + min-height:0 이라
-   공간이 넉넉하면 크게, 모자라면 줄어들어 쪽 넘침을 만들지 않습니다. */
-.bkpage .spot{flex:1 1 0;min-height:0;align-self:center;max-width:100%;width:auto;
-  object-fit:contain;object-position:center;margin-top:12px}
-.bkpage.quote .spot,.bkpage.dark .spot{border-radius:16px;margin:16px 0 18px}
+   글 아래 남는 세로 공간을 채우는 그림. StPageFlip이 쪽에 display:block을
+   인라인으로 박아 flex가 무시되므로, 높이는 app.js의 fitSpots()가 실측해 넣습니다. */
+.bkpage .spot{display:block;margin:12px auto 0;max-width:100%;width:auto;
+  object-fit:contain;object-position:center}
+.bkpage.quote .spot,.bkpage.dark .spot{border-radius:16px;margin-top:16px}
+
+/* ── 3쪽 교실 도해 — 24자리 중 서너 자리 ───────── */
+.seatst{margin-top:20px}
+.seats{display:grid;grid-template-columns:repeat(8,1fr);gap:9px;max-width:340px}
+.seats i{aspect-ratio:1;border-radius:8px;background:var(--paper-deep)}
+.seats i.on{background:var(--brand)}
+.seats i.half{background:var(--brand);opacity:.45}
 
 /* ── 도판 쪽 ─────────────────────────────────
    가로형 캡처 한 장을 어두운 바탕 위에 액자처럼 통째로 앉힙니다. */
@@ -412,7 +419,7 @@ footer p{margin:0 0 6px}
 .bars2 .bar{height:26px;background:var(--paper-deep);border-radius:4px;overflow:hidden}
 .bars2 .bar i{display:block;height:100%;background:var(--brand);border-radius:4px}
 .bars2 .low .bar i{background:var(--c-orange)}
-.bars2 .bv{font-family:var(--display);font-style:italic;font-size:22px;color:var(--brand)}
+.bars2 .bv{font-family:var(--serif);font-style:normal;font-weight:700;font-size:22px;color:var(--brand)}
 .bars2 .low .bv{color:var(--c-orange)}
 
 /* 세 단계 — 임계값 */
@@ -431,7 +438,7 @@ footer p{margin:0 0 6px}
 .cycle li:last-child{padding-bottom:0}
 .cycle li::before{content:counter(cy);position:absolute;left:0;top:-2px;width:30px;height:30px;
   border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;
-  font-family:var(--display);font-style:italic;font-size:15px}
+  font-family:var(--serif);font-style:normal;font-weight:700;font-size:16px}
 .cycle li:not(:last-child)::after{content:"";position:absolute;left:14px;top:32px;bottom:6px;
   width:1px;background:var(--brand-soft)}
 .cycle b{display:block;font-family:var(--serif);font-size:17px;color:var(--ink);margin-bottom:3px}
@@ -447,7 +454,7 @@ footer p{margin:0 0 6px}
 /* 속표지의 책 짜임 */
 .build{margin-top:20px;display:grid;gap:9px;padding-top:16px;border-top:1px solid var(--line)}
 .build>div{display:flex;gap:13px;align-items:baseline;font-size:13.5px;line-height:1.6;color:var(--ink-soft)}
-.build .n{flex:none;font-family:var(--display);font-style:italic;font-size:14px;color:var(--brand);min-width:2.4em}
+.build .n{flex:none;font-family:var(--serif);font-style:normal;font-weight:700;font-size:14px;color:var(--brand);min-width:2.4em}
 /* 작은 막대 */
 .bars2.small>div{grid-template-columns:7.4em 1fr auto;gap:12px}
 .bars2.small .bar{height:16px}
@@ -495,21 +502,24 @@ footer p{margin:0 0 6px}
 .tocnote{font-size:14px;color:var(--ink-faint);margin:0}
 .tocnote em{font-style:normal;color:var(--brand);font-weight:700}
 
-/* 차례 — 책의 목차. 두 단으로 세워 한 화면에 담습니다. */
-#hub{columns:2;column-gap:44px}
+/* 차례 — 책의 목차. 두 단, 장 이름은 진하게, 쪽번호는 점선 끝 오른쪽에. */
+#hub{columns:2;column-gap:36px}
 @media(max-width:760px){#hub{columns:1}}
-.tocch{break-after:avoid;break-inside:avoid;margin:0 0 8px;padding-left:11px;
-  border-left:3px solid var(--c,var(--brand));
-  font-size:12px;font-weight:700;letter-spacing:.13em;color:var(--ink-faint)}
-.tocch:not(:first-child){margin-top:22px}
-.tocrow{break-inside:avoid;display:flex;align-items:baseline;gap:12px;width:100%;
-  background:none;border:0;padding:5px 0;cursor:pointer;text-align:left;
-  font-family:var(--sans);color:var(--ink);border-bottom:1px dotted var(--line)}
-.tocrow:hover{color:var(--brand)}
-.tocrow:hover .t{text-decoration:underline}
-.tocrow .n{flex:none;width:1.9em;font-family:var(--display);font-style:italic;
-  font-size:15px;color:var(--brand)}
-.tocrow .t{font-size:15px;line-height:1.6}
+.tocch{break-after:avoid;break-inside:avoid;display:flex;align-items:center;gap:9px;
+  margin:0 0 7px;font-family:var(--serif);font-size:15px;font-weight:700;
+  letter-spacing:.01em;color:var(--ink)}
+.tocch::before{content:"";flex:none;width:11px;height:11px;border-radius:3.5px;
+  background:var(--c,var(--brand))}
+.tocch:not(:first-child){margin-top:21px}
+.tocrow{break-inside:avoid;display:flex;align-items:baseline;gap:9px;width:100%;
+  background:none;border:0;padding:6px 0 6px 20px;cursor:pointer;text-align:left;
+  font-family:var(--sans);color:var(--ink)}
+.tocrow .t{font-size:14.5px;line-height:1.5;color:var(--ink-soft)}
+.tocrow .lead{flex:1;min-width:14px;border-bottom:2px dotted var(--paper-edge);
+  transform:translateY(-4px)}
+.tocrow .n{flex:none;font-family:var(--serif);font-style:normal;font-weight:700;
+  font-size:14px;color:var(--brand)}
+.tocrow:hover .t{color:var(--brand);text-decoration:underline}
 
 /* ── 펼친 두 쪽 ────────────────────────────────
    왼쪽은 그림이나 눌러 볼 수 있는 장치, 오른쪽은 글.
@@ -537,7 +547,7 @@ footer p{margin:0 0 6px}
 .facts>div{display:flex;gap:14px;align-items:baseline;font-size:13.5px;line-height:1.7;color:var(--ink-soft)}
 .facts .k{flex:none;min-width:6.2em;font-family:var(--serif);font-weight:700;
   font-size:13.5px;color:var(--brand-deep)}
-.facts .k.num{font-family:var(--display);font-style:italic;font-size:16px;color:var(--brand);min-width:2.4em}
+.facts .k.num{font-family:var(--serif);font-style:normal;font-weight:700;font-size:17px;color:var(--brand);min-width:2.4em}
 .pull q{display:block;font-family:var(--serif);font-size:16.5px;line-height:1.85;
   color:var(--brand-deep);quotes:'\201C' '\201D'}
 .pull q+q{margin-top:8px;color:var(--ink-soft);font-size:15px}
@@ -698,9 +708,9 @@ footer p{margin:0 0 6px}
   .facts>div{font-size:12.5px;line-height:1.6}
   .build{margin-top:14px;padding-top:12px;gap:6px}
   .build>div{font-size:12.5px}
-  .tocrow{padding:4px 0}
+  .tocrow{padding:4px 0 4px 18px}
   .tocrow .t{font-size:14px}
-  .tocch{font-size:11.5px}
+  .tocch{font-size:14px}
   .tocch:not(:first-child){margin-top:16px}
   .tochead{margin-bottom:14px}
   .tochead h1{font-size:clamp(20px,2.4vw,26px);margin-bottom:8px}
@@ -712,11 +722,17 @@ footer p{margin:0 0 6px}
   .bkpage{padding:20px 24px}
   .bkpage h2{font-size:clamp(17px,2.1vw,22px);margin-bottom:9px}
   .bkpage .say{font-size:13.5px;line-height:1.72;margin-bottom:11px}
-  .tocrow{padding:3px 0}
+  .tocrow{padding:3px 0 3px 16px}
   .tocrow .t{font-size:13px}
   .tocrow .n{font-size:13px}
-  .tocch{margin-bottom:5px}
+  .tocch{margin-bottom:5px;font-size:13.5px}
   .tocch:not(:first-child){margin-top:11px}
+  /* 3쪽 수치 도해를 한 단계 조입니다 */
+  .seatst{margin-top:8px}
+  .seats{max-width:220px;gap:5px}
+  .dots{max-width:200px;gap:4px}
+  .bignum b{font-size:44px}
+  .bkpage.data{gap:12px}
   .tochead h1{font-size:19px}
   .tocnote{font-size:12.5px}
   .facts{gap:5px}
