@@ -347,12 +347,10 @@ footer p{margin:0 0 6px}
 .bkpage.L::after{right:0;background:linear-gradient(90deg,rgba(61,44,29,0),rgba(61,44,29,.09))}
 .bkpage.R::after{left:0;background:linear-gradient(270deg,rgba(61,44,29,0),rgba(61,44,29,.09))}
 
-/* ── 펼침 도판 ─────────────────────────────────
-   그림 한 장이 두 쪽에 걸칩니다. 왼쪽 쪽엔 왼쪽 절반, 오른쪽 쪽엔 오른쪽 절반을 깝니다. */
-.bkpage.wide{padding:0;background:var(--wall);background-size:200% auto;
-  background-repeat:no-repeat;background-position:center center}
-.bkpage.wide.L{background-position:left center}
-.bkpage.wide.R{background-position:right center}
+/* ── 도판 쪽 ─────────────────────────────────
+   가로형 캡처 한 장을 어두운 바탕 위에 액자처럼 통째로 앉힙니다. */
+.bkpage.wide{padding:0;background:var(--wall);background-size:contain;
+  background-repeat:no-repeat;background-position:center 42%}
 .bkpage.wide .cap{position:absolute;left:0;right:0;bottom:0;z-index:3;
   padding:56px 30px 24px;color:#f6f2e4;
   background:linear-gradient(rgba(31,43,32,0),rgba(31,43,32,.9))}
@@ -415,7 +413,7 @@ footer p{margin:0 0 6px}
 .steps3>div{display:grid;grid-template-columns:5.4em 1fr;align-items:center;gap:16px;
   padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
 .steps3>div.on{border-color:var(--brand);background:var(--brand-soft)}
-.steps3 b{font-family:var(--display);font-style:italic;font-size:21px;color:var(--ink-faint)}
+.steps3 b{font-family:var(--serif);font-style:normal;font-weight:700;font-size:25px;color:var(--ink-soft);letter-spacing:-.01em}
 .steps3 .on b{color:var(--brand)}
 .steps3 .s{font-size:14px;line-height:1.6;color:var(--ink-soft)}
 .steps3 .g{display:none}
@@ -625,11 +623,12 @@ footer p{margin:0 0 6px}
 .bkpage.live .shelf,.bkpage.live .gal,.bkpage.live .codebox,.bkpage.live .namecard{margin-bottom:0}
 
 /* 어두운 쪽 */
-.page.dark .bkpage.dark h2{color:var(--wall-ink)}
+.bkpage.dark h2{color:var(--wall-ink)}
 .bkpage.dark .say{color:#cfd9c9}
 .bkpage.dark .say strong{color:var(--gold)}
 .bkpage.dark .ch{color:#9dc3a6}
-.page.dark .bkpage.live{background:rgba(0,0,0,.14)}
+/* live가 dark보다 뒤에 선언돼 배경을 덮어쓰므로, 둘을 겸한 쪽은 여기서 되살립니다 */
+.bkpage.live.dark{background:var(--wall)}
 .page.dark 
 /* 좁은 화면에서는 펼치지 않고 위아래로 */
 @media(max-width:900px){
