@@ -242,6 +242,8 @@
     });
   }
   addEventListener('resize', fitLive);
+  // 이미지가 fitLive 뒤에 로드되면 장치 높이가 달라질 수 있어, 로드가 끝나면 한 번 더 맞춥니다.
+  addEventListener('load', fitLive);
 
   function syncRail() {
     var i = pf ? spreadNow() : here();
