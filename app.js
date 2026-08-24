@@ -79,13 +79,13 @@
      쪽을 넣고 빼려면 여기만 고치면 됩니다. 넘김 줄·쪽번호·차례 카드가 전부 따라갑니다. */
   var BOOK = [
     { r:'/',         t:'차례' },
-    { r:'/why',      t:'아이가 왜 책을 덮는지',        ch:'1장 · 왜 만들었나' },
-    { r:'/ai',       t:'그리고 또 하나',              ch:'1장 · 왜 만들었나' },
-    { r:'/gap',       t:'한 반에 서너 명',            ch:'2장 · 무엇이 알려져 있나' },
-    { r:'/adults',    t:'지금이 아니면 언제',          ch:'2장 · 무엇이 알려져 있나' },
-    { r:'/threshold', t:'왜 하필 어휘인가',            ch:'2장 · 무엇이 알려져 있나' },
-    { r:'/matthew',   t:'격차는 저절로 벌어집니다',    ch:'2장 · 무엇이 알려져 있나' },
-    { r:'/spiral',    t:'끝까지 읽은 한 권이 다음을 부릅니다', ch:'2장 · 무엇이 알려져 있나' },
+    { r:'/why',      t:'책을 덮게 되는 순간',          ch:'1장 · 부기를 만든 출발점' },
+    { r:'/ai',       t:'부기는 수업을 대신 만들지 않습니다', ch:'1장 · 부기를 만든 출발점' },
+    { r:'/gap',       t:'한 반에 서너 명',            ch:'2장 · 읽기를 둘러싼 근거' },
+    { r:'/adults',    t:'지금이 아니면 언제',          ch:'2장 · 읽기를 둘러싼 근거' },
+    { r:'/threshold', t:'낱말 몇 개가 읽기를 막습니다', ch:'2장 · 읽기를 둘러싼 근거' },
+    { r:'/matthew',   t:'격차는 저절로 벌어집니다',    ch:'2장 · 읽기를 둘러싼 근거' },
+    { r:'/spiral',    t:'끝까지 읽은 한 권이 다음을 부릅니다', ch:'2장 · 읽기를 둘러싼 근거' },
     { r:'/read',     t:'같은 책을, 아이마다 다르게',   ch:'3장 · 아이가 읽는 화면' },
     { r:'/word',     t:'낱말 뜻은 그 자리에서',        ch:'3장 · 아이가 읽는 화면' },
     { r:'/vi',       t:'같은 쪽을 모국어로',           ch:'3장 · 아이가 읽는 화면' },
@@ -93,12 +93,12 @@
     { r:'/level2',   t:'누구는 원문을, 누구는 재구성을', ch:'3장 · 아이가 읽는 화면' },
     { r:'/chat',     t:'물어볼 게 있으려면 읽어야 합니다', ch:'3장 · 아이가 읽는 화면' },
     { r:'/diagnose', t:'등수가 아니라, 무엇을 줄지',   ch:'3장 · 아이가 읽는 화면' },
-    { r:'/fun',      t:'읽은 책만 소품이 됩니다',      ch:'3장 · 아이가 읽는 화면' },
-    { r:'/props',    t:'한 권에서 갈라지는 두 소품',   ch:'3장 · 아이가 읽는 화면' },
+    { r:'/fun',      t:'책을 읽으면 소품을 얻어요',    ch:'3장 · 아이가 읽는 화면' },
+    { r:'/props',    t:'책마다 다른 소품',            ch:'3장 · 아이가 읽는 화면' },
     { r:'/shelf',    t:'6학년이 1학년 때 쓴 한 줄',    ch:'3장 · 아이가 읽는 화면' },
-    { r:'/gallery',  t:'우리 반 전시장',              ch:'3장 · 아이가 읽는 화면' },
-    { r:'/teacher',  t:'수업은 선생님이 짭니다',       ch:'4장 · 선생님이 쓰는 화면' },
-    { r:'/material', t:'자료는 이미 들어 있습니다',    ch:'4장 · 선생님이 쓰는 화면' },
+    { r:'/gallery',  t:'우리 반 작품 보기',            ch:'3장 · 아이가 읽는 화면' },
+    { r:'/teacher',  t:'선생님의 수업 구성을 도와 드립니다', ch:'4장 · 선생님이 쓰는 화면' },
+    { r:'/material', t:'수업 자료도 함께 준비합니다',  ch:'4장 · 선생님이 쓰는 화면' },
     { r:'/code',     t:'숫자 여섯 개면 들어옵니다',    ch:'4장 · 선생님이 쓰는 화면' },
     { r:'/class',    t:'상담 자료가 이미 만들어져 있습니다', ch:'4장 · 선생님이 쓰는 화면' },
     { r:'/admin',    t:'학교 평균에서 아이 한 명까지', ch:'5장 · 기관이 보는 화면' },
@@ -298,7 +298,7 @@
 
   /* ── 리더 ────────────────────────────────── */
   var TEXT = {
-    ko:{ book:'토끼와 거북이', author:'이솝 · Aesop (BC)', hint:'밑줄 친 낱말을 눌러 뜻을 확인해요',
+    ko:{ book:'토끼와 거북이', author:'이솝 · Aesop (BC)', hint:'밑줄 친 낱말을 누르면 뜻을 볼 수 있어요',
       html:'<p>발 빠른 토끼가 늘 자랑했어요.</p><p>"내가 제일 빨라!"</p><p>그 말을 들은 거북이가 말했어요.</p>'
         +'<p>"그럼 나랑 <span class="w" data-t="시합" data-d="누가 더 잘하나 겨루는 것">시합</span>하자!"</p>'
         +'<p>토끼는 <span class="w" data-t="코웃음" data-d="상대를 얕보며 콧숨으로 웃는 것">코웃음</span>을 치며 대답했어요.</p><p>"좋아, 해 보자!"</p>' },
@@ -319,12 +319,12 @@
 
   /* ── 수준별 글 ───────────────────────────── */
   var MODES = {
-    orig:{ hint:'원문 — 원작의 문장과 호흡을 살린 글',
+    orig:{ hint:'원문 — 원작의 문장과 호흡을 살려 읽는 글',
       html:'<p>카렌이라는 가난한 소녀가 있었다. 신발 한 켤레 없이 맨발로 다닐 만큼 어렵게 자랐는데, 어느 날 마음씨 좋은 늙은 부인이 외로운 카렌을 양딸로 거두어 곱게 길렀다. 부인은 카렌에게 깨끗한 옷과 신발을 사 주고 글도 가르쳤으며, 사람들은 카렌이 참 곱다고 칭찬했다.</p><p>그러던 어느 날, 카렌은 구둣방 진열장에서 새빨갛게 반짝이는 예쁜 가죽 구두를 보고 그만 마음을 온통 빼앗기고 말았다. 어찌나 갖고 싶었던지, 카렌은 눈이 어두운 양어머니를 졸라 기어이 그 빨간 구두를 손에 넣었다.</p>' },
-    easy:{ hint:'재구성 — 같은 장면을 그 학년 눈높이로 다시 쓴 글',
+    easy:{ hint:'재구성 — 같은 장면을 학년 눈높이에 맞춰 다시 쓴 글',
       html:'<p><span class="w" data-t="가난한" data-d="돈이나 물건이 넉넉하지 않은">가난한</span> 카렌이라는 소녀가 있었어요. 신발도 없이 <span class="w" data-t="맨발" data-d="아무것도 신지 않은 발">맨발</span>로 다녔죠. 어느 날, 마음씨 좋은 할머니가 외로운 카렌을 데려다 딸처럼 키워 주셨어요.</p><p>어느 날, 카렌은 반짝이는 <span class="w" data-t="새빨간" data-d="아주 짙고 선명한 빨간색의">새빨간</span> 가죽 구두를 보았어요. 너무 갖고 싶어서 할머니를 <span class="w" data-t="조르고 졸라" data-d="자꾸자꾸 해 달라고 부탁해서">조르고 졸라</span> 빨간 구두를 가지게 되었답니다.</p>' },
     lesson:{ hint:'교훈 — 짧은 서평과 한 줄 정리',
-      html:'<p>갖고 싶은 마음은 잘못이 아닙니다. 다만 그 마음이 나를 데리고 어디까지 가는지를 카렌은 몰랐습니다.</p><p style="text-indent:0;margin-top:18px;color:var(--brand);font-weight:600">교훈 — 갖고 싶은 마음보다 먼저, 그 마음을 살피는 눈이 필요하다.</p>' } };
+      html:'<p>갖고 싶은 마음 자체가 잘못은 아닙니다. 다만 그 마음이 나를 어디까지 끌고 가는지는 살펴볼 필요가 있습니다.</p><p style="text-indent:0;margin-top:18px;color:var(--brand);font-weight:600">교훈 — 갖고 싶은 마음보다 먼저, 그 마음을 바라보는 눈이 필요하다.</p>' } };
   var rdr2 = $('rdr2');
   function paint2(m){ rdr2.innerHTML = MODES[m].html; $('hint2').textContent = MODES[m].hint; hideTip(); }
   wireWords(rdr2);
@@ -405,7 +405,7 @@
 
   /* ── 교사: 구성 · 차시 · 지도안 ──────────── */
   var PLANS = [
-    { id:'whole', ic:'book', name:'온책읽기 8차시', desc:'만나기→인물→사건→마음→나눔까지 깊이 읽는 표준 구성',
+    { id:'whole', ic:'book', name:'온책읽기 8차시', desc:'만나기→인물→사건→마음→나눔으로 이어지는 온책읽기 기본 구성',
       s:[['책 만나기','표지와 제목을 보고 「토끼와 거북이」의 내용을 상상하여 말할 수 있다.',['표지·제목으로 상상하기','질문 만들며 시작하기','생각 나누기·발표']],
          ['인물 만나기','토끼와 거북이의 성격과 특징을 파악할 수 있다.',['지난 차시 떠올리기','인물 마음 지도 그리기','부기와 대화하기']],
          ['사건 따라가기','자랑 → 시합 → 낮잠 → 역전으로 이어지는 흐름을 정리할 수 있다.',['소리 내어 함께 읽기','사건 순서 정리하기','짝·모둠 토의']],
@@ -413,31 +413,31 @@
          ['생각 넓히기','이야기에서 얻은 생각을 내 경험과 이어 말할 수 있다.',['독서록 쓰기','생각 나누기·발표']],
          ['인상 깊은 장면','가장 인상 깊은 장면을 골라 까닭과 함께 나눌 수 있다.',['장면 고르기','그림으로 표현하기']],
          ['함께 토론하기','토끼와 거북이 중 누가 더 잘했는지 근거를 들어 말할 수 있다.',['짝·모둠 토의','토론방 열기']],
-         ['독후 작품 만들기','읽은 내용을 바탕으로 독후 작품을 만들어 전시할 수 있다.',['작품 만들기','전시장에 올리기','평가']]] },
-    { id:'korean', ic:'clock', name:'국어수업 4차시', desc:'국어 교과 시간에 맞춘 짧은 구성 · 시수가 빠듯할 때',
+         ['독후 작품 만들기','읽은 내용을 바탕으로 독후 작품을 만들어 전시할 수 있다.',['작품 만들기','우리 반 작품에 올리기','평가']]] },
+    { id:'korean', ic:'clock', name:'국어수업 4차시', desc:'국어 수업 시간에 맞춘 짧은 구성 · 시수가 빠듯할 때',
       s:[['작품 읽고 이해하기','작품을 읽고 인물·사건·배경을 파악할 수 있다.',['소리 내어 함께 읽기','사건 순서 정리하기']],
          ['인물의 마음 알기','인물의 마음을 짐작하고 까닭을 말할 수 있다.',['인물 마음 지도 그리기','부기와 대화하기']],
          ['내 생각 쓰기','작품에 대한 내 생각을 글로 쓸 수 있다.',['독서록 쓰기','활동지 작성']],
          ['나누고 마무리','친구들과 생각을 나누고 배운 점을 정리할 수 있다.',['생각 나누기·발표','평가']]] },
-    { id:'picture', ic:'image', name:'그림책 3차시', desc:'저학년 그림책 · 듣기·관찰·표현 중심의 짧은 구성',
+    { id:'picture', ic:'image', name:'그림책 3차시', desc:'저학년 그림책 수업 · 듣기·관찰·표현 중심',
       s:[['그림책 만나기','표지와 그림을 보고 무슨 이야기일지 상상하여 말할 수 있다.',['표지·제목으로 상상하기','그림 자세히 보기']],
          ['들으며 느끼기','선생님이 읽어 주는 이야기를 듣고 마음을 나눌 수 있다.',['읽어 주기','마음 카드 고르기']],
-         ['표현하기','기억에 남는 장면을 그림이나 말로 표현할 수 있다.',['그림으로 표현하기','전시장에 올리기']]] },
-    { id:'morning', ic:'sprout', name:'아침활동 4차시', desc:'아침 10분 독서 루틴 · 활동지 중심의 가벼운 구성',
-      s:[['오늘의 한 쪽','아침마다 책을 펴고 한 쪽씩 읽는 습관을 들인다.',['혼자 깊이 읽기','한 줄 기록']],
+         ['표현하기','기억에 남는 장면을 그림이나 말로 표현할 수 있다.',['그림으로 표현하기','우리 반 작품에 올리기']]] },
+    { id:'morning', ic:'sprout', name:'아침활동 4차시', desc:'아침 10분 독서 루틴 · 짧은 기록과 활동지 중심',
+      s:[['오늘의 한 쪽','아침마다 책을 펴고 한 쪽씩 읽는 습관을 기른다.',['혼자 깊이 읽기','한 줄 기록']],
          ['오늘의 어휘','오늘 읽은 쪽에서 새 어휘를 하나 찾는다.',['어휘 찾기','활동지 작성']],
          ['오늘의 문장','마음에 남은 문장을 옮겨 적는다.',['문장 수집하기']],
          ['한 주 돌아보기','한 주 동안 읽은 것을 돌아본다.',['독서록 쓰기','생각 나누기·발표']]] },
-    { id:'dlp', ic:'clipboard', name:'디지털 독서지도안', desc:'읽기 전·중·후 발문과 부기 디지털 활동, 우리 반 결과까지 한자리에서',
-      s:[['읽기 전','읽기 전 질문으로 배경지식을 깨운다.',['질문 만들며 시작하기','표지·제목으로 상상하기']],
+    { id:'dlp', ic:'clipboard', name:'디지털 독서지도안', desc:'읽기 전·중·후 발문, 부기 활동, 우리 반 결과를 한자리에서 확인',
+      s:[['읽기 전','질문으로 배경지식을 떠올린다.',['질문 만들며 시작하기','표지·제목으로 상상하기']],
          ['읽는 중','디지털 리더로 읽으며 어휘와 장면을 짚는다.',['어휘 뜻 확인','부기와 대화하기']],
-         ['읽은 후','우리 반 결과를 한자리에서 확인한다.',['전시장 모아보기','학급 리포트 보기']]] }
+         ['읽은 후','우리 반 결과를 한자리에서 확인한다.',['우리 반 작품 보기','학급 리포트 보기']]] }
   ];
   var GUIDE = { title:'2차시 「인물 만나기」 교수·학습 과정안', goal:'토끼와 거북이의 성격과 특징을 파악할 수 있다.',
-    rows:[['마음 열기','5분','지난 차시의 상상과 실제 첫 장면을 비교하며 이야기를 엽니다.',['표지를 보고 상상한 이야기와 어떻게 달랐나요?']],
-      ['함께 읽기','15분','선생님이 자랑·도전 장면까지 읽어 주며 인물을 짚습니다. 토끼(자만)와 거북이(끈기)의 성격 차이에 주목하게 합니다.',['토끼는 무엇을 자랑했나요?','거북이는 토끼에게 무엇을 하자고 했나요?']],
-      ['인물 살펴보기','10분','부기와 대화로 거북이에게 묻듯 마음을 짐작해 봅니다. 다양한 짐작을 격려합니다.',['토끼는 어떤 성격일까요? 왜 그렇게 생각해요?','거북이는 왜 시합을 하자고 했을까요?']],
-      ['정리하기','10분','인물 카드를 만들어 오늘 파악한 성격을 남깁니다.',['우리 반이 찾은 토끼의 성격은 무엇인가요?']]] };
+    rows:[['마음 열기','5분','지난 차시에 상상한 내용과 실제 첫 장면을 비교하며 수업을 시작합니다.',['표지를 보고 상상한 이야기와 어떻게 달랐나요?']],
+      ['함께 읽기','15분','선생님이 자랑과 도전 장면까지 읽어 주며 두 인물의 모습을 살펴봅니다. 토끼의 자만과 거북이의 끈기가 어떻게 드러나는지 함께 찾습니다.',['토끼는 무엇을 자랑했나요?','거북이는 토끼에게 무엇을 하자고 했나요?']],
+      ['인물 살펴보기','10분','부기와 대화하며 거북이에게 직접 묻듯 마음을 짐작해 봅니다. 답은 하나로 정하지 않고, 근거가 있는 다양한 생각을 받아 줍니다.',['토끼는 어떤 성격일까요? 그렇게 생각한 까닭은 무엇인가요?','거북이가 시합을 하자고 한 까닭은 무엇일까요?']],
+      ['정리하기','10분','인물 카드를 만들며 오늘 찾은 성격과 그 까닭을 정리합니다.',['우리 반이 찾은 토끼의 성격은 무엇인가요?']]] };
   var cur = 'whole', SHOWN = 1;   // 소개용으로 앞 3차시만 펼칩니다
   function renderModes() {
     $('modes').innerHTML = PLANS.map(function (p) {
@@ -448,14 +448,14 @@
   }
   function renderSessions() {
     var p = PLANS.filter(function(x){ return x.id===cur; })[0];
-    $('sessions').innerHTML = '<p style="font-size:13px;color:var(--ink-faint);margin:18px 0 12px">'+esc(p.name)+' · <strong>지도안</strong>을 누르면 발문까지 펼쳐집니다.</p>'
+    $('sessions').innerHTML = '<p style="font-size:13px;color:var(--ink-faint);margin:18px 0 12px">'+esc(p.name)+' · <strong>지도안</strong>을 누르면 차시별 발문까지 볼 수 있습니다.</p>'
       + p.s.slice(0, SHOWN).map(function (s,i) {
         return '<div class="sess"><div class="sess-h"><span class="sess-n">'+(i+1)+'</span><span><b>'+esc(s[0])+'</b><span>토끼와 거북이 — '+esc(s[1])+'</span></span></div>'
           +'<div class="acts">'+s[2].map(function(a){ return '<span class="act">'+esc(a)+'</span>'; }).join('')+'<span class="act plus">+ 활동 추가</span></div>'
           +'<div class="mats"><button class="mat" type="button">PPT</button><button class="mat" type="button">활동지</button>'
           +'<button class="mat guide-btn" type="button">지도안</button><button class="mat" type="button">미리보기</button>'
           +'<button class="mat send" type="button">학생에게 배포</button></div></div>'; }).join('')
-      + (p.s.length > SHOWN ? '<p class="more-n">…이하 ' + (p.s.length - SHOWN) + '차시가 더 있습니다. 실제 화면에서는 모두 펼쳐집니다.</p>' : '')
+      + (p.s.length > SHOWN ? '<p class="more-n">…이하 ' + (p.s.length - SHOWN) + '차시가 더 있습니다. 실제 화면에서는 전체 차시를 볼 수 있습니다.</p>' : '')
       + '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px">'
       + '<b style="font-family:var(--serif);color:var(--brand-deep)">토끼와 거북이 · '+esc(p.name)+'</b>'
       + '<span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">'
@@ -468,7 +468,7 @@
       + '<div class="grow"><b>학습 목표</b><p style="margin:0">'+esc(GUIDE.goal)+'</p></div>'
       + GUIDE.rows.map(function (r) { return '<div class="grow"><b>'+esc(r[0])+'<em>('+r[1]+')</em></b><div><p>'+esc(r[2])+'</p>'
         +'<div class="qbox"><div class="ql">'+ico('quote','sm')+'발문 예시</div><ul>'+r[3].map(function(q){ return '<li>'+esc(q)+'</li>'; }).join('')+'</ul></div></div></div>'; }).join('')
-      + '<p style="font-size:13.5px;color:var(--ink-faint);margin:14px 0 0">그대로 쓰거나, 발문을 우리 반 말투로 고쳐 쓸 수 있습니다. 한글(.hwpx)로 내보냅니다.</p></div>';
+      + '<p style="font-size:13.5px;color:var(--ink-faint);margin:14px 0 0">그대로 쓰셔도 되고, 발문만 우리 반 말투에 맞게 고쳐 쓰셔도 됩니다. 한글(.hwpx)로 내보낼 수 있습니다.</p></div>';
   }
   renderModes(); renderSessions();
 
@@ -562,7 +562,7 @@
             var h = Math.round(m[1]/351*62) + 14;
             return '<div class="bcol'+(m[2]?'':' now')+'"><span class="bv">'+m[1]+'</span><span class="bb2" style="height:'+h+'px'+(m[2]?';background:'+m[2]:'')+'"></span><span class="bl">'+m[0]+'</span></div>'; }).join('')
         + '</div><p style="text-align:right;font-size:13px;color:var(--ink-faint);margin:34px 0 0">8월은 진행 중입니다</p></div>'
-        + '<h3 style="font-size:18px;margin:0 0 4px">담당 학교</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">학교를 누르면 학급 목록이 열려요</p>'
+        + '<h3 style="font-size:18px;margin:0 0 4px">담당 학교</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">학교를 누르면 학급 목록이 열립니다</p>'
         + '<div class="schools">' + SCHOOLS.slice(0, 2).map(function (s,i) {
             return '<button class="school" type="button" data-sc="'+i+'" style="border-left-color:'+s.c+'"><h4>'+esc(s.name)+'</h4>'
               +'<div class="m">학급 '+s.cls+' · 학생 '+s.stu+' · 교사 '+s.tea+'</div>'
@@ -574,7 +574,7 @@
       var s2 = SCHOOLS[view.s];
       av2.innerHTML = '<h3 style="font-size:22px;margin:0 0 4px">'+esc(s2.name)+'</h3>'
         +'<p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 18px">학급 '+s2.cls+' · 학생 '+s2.stu+' · 1학기 완독 '+s2.done+'권</p>'
-        +'<h3 style="font-size:18px;margin:0 0 4px">학급 현황</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">학급을 누르면 아이들이 보여요</p>'
+        +'<h3 style="font-size:18px;margin:0 0 4px">학급 현황</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">학급을 누르면 학생 목록이 열립니다</p>'
         +'<div class="schools">' + s2.classes.map(function (c,i) {
             return '<button class="school" type="button" data-cl="'+i+'" style="border-left-color:'+s2.c+'"><h4>'+esc(c[0])+'</h4>'
               +'<div class="m">담임 '+esc(c[1])+' 선생님 · 학생 '+c[2]+'명</div>'
@@ -586,7 +586,7 @@
       var s3 = SCHOOLS[view.s], c3 = s3.classes[view.c], kids = c3[4];
       av2.innerHTML = '<h3 style="font-size:22px;margin:0 0 4px">'+esc(c3[0])+'</h3>'
         +'<p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 18px">'+esc(s3.name)+' · 담임 '+esc(c3[1])+' · 학생 '+c3[2]+'명 · 완독 '+c3[3]+'권</p>'
-        + (kids ? '<h3 style="font-size:18px;margin:0 0 4px">학급 아이들</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">아이를 누르면 개인 이력이 열려요</p><div class="kids">'
+        + (kids ? '<h3 style="font-size:18px;margin:0 0 4px">학급 아이들</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">아이를 누르면 개인 이력이 열립니다</p><div class="kids">'
             + kids.map(function (k) { return '<div class="kid"><div class="ph"><img src="assets/char-base2.webp" alt="">'
               +'<span class="cap" style="background:'+k[5]+'"></span></div>'
               +'<b>'+esc(k[0])+'</b><div class="lvp"><em>Lv.'+k[1]+'</em>'+k[2]+'P</div><div class="dn2">완독 '+k[3]+'권</div>'
@@ -641,7 +641,7 @@
 
       var btn = $('applyBtn');
       btn.disabled = true; btn.textContent = '보내는 중…';
-      msg('ok', '접수하고 있습니다. 잠시만 기다려 주세요.');
+      msg('ok', '접수 내용을 보내고 있습니다.');
 
       if (!APPLY_ENDPOINT) {
         btn.disabled = false; btn.textContent = '신청하고 계정 받기';
