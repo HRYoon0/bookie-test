@@ -45,24 +45,36 @@
 
 
   /* ── 차례 ─────────────────────────────────────
-     책의 목차입니다. 쪽 목록(BOOK)에서 그대로 만들어지므로 따로 손댈 것이 없습니다. */
-  var CHCOLOR = { '1장': 'var(--gold)', '2장': 'var(--g1)', '3장': 'var(--g3)', '4장': 'var(--g5)', '5장': 'var(--g6)' };
+     장 단위로만 싣습니다. 쪽 목록이 아니라 다섯 덩어리입니다. (2026-08-30 대표님 지시)
+     장 이름·차례 줄·쪽 범위가 전부 아래 BOOK 배열에서 나오므로 여기를 손댈 일은 없습니다.
+     장을 누르면 그 장의 첫 쪽으로 갑니다. */
+  var CHCOLOR = { '부기를 만든 이유': 'var(--gold)', '부기 학생 기능 소개': 'var(--g3)',
+                  '부기 교사 기능 소개': 'var(--g5)', '부기 관리 기능 소개': 'var(--g6)',
+                  '시험 사용 신청': 'var(--brand)' };
+  var CHSUM = {
+    '부기를 만든 이유':    '한 쪽에 모르는 낱말 서너 개면 아이는 멈춥니다. PISA 14.7%, 어휘 98% 임계값, 마태 효과, 상승 나선.',
+    '부기 학생 기능 소개': '낱말 뜻풀이, 모국어로 읽기, 원문과 재구성, 등장인물과의 대화, 12개 영역 진단, 소품과 서고, 우리 반 작품.',
+    '부기 교사 기능 소개': '온책읽기 8차시를 골라 담고, 여섯 자리 숫자로 아이들을 들이고, 상담에 쓸 기록을 받습니다.',
+    '부기 관리 기능 소개': '학교와 학급 현황에서 아이 한 명까지. 담임이 쓴 관찰노트는 이 화면에 오지 않습니다.',
+    '시험 사용 신청':      '소속·성명·이메일 세 가지면 됩니다. 9월 9일 설명회 신청도 이 쪽에 있습니다.'
+  };
 
   function buildToc() {
-    var html = '', ch = null;
+    var seen = {}, order = [];
     BOOK.forEach(function (b, i) {
       if (!i) return;                                   // 차례 자신은 싣지 않습니다
-      if (b.ch !== ch) {
-        ch = b.ch;
-        html += '<p class="tocch" style="--c:' + (CHCOLOR[ch.split(' ')[0]] || 'var(--brand)') + '">'
-              + esc(ch) + '</p>';
-      }
-      html += '<button class="tocrow" type="button" data-go="' + b.r + '">'
-            + '<span class="t">' + esc(b.t) + '</span>'
-            + '<span class="lead"></span>'
-            + '<span class="n">' + i + '</span></button>';
+      if (!seen[b.ch]) { seen[b.ch] = { first: b.r, from: i, to: i }; order.push(b.ch); }
+      else seen[b.ch].to = i;
     });
-    $('hub').innerHTML = html;
+    $('hub').innerHTML = order.map(function (ch) {
+      var c = seen[ch], range = c.from === c.to ? c.from : c.from + '–' + c.to;
+      return '<button class="tocch2" type="button" data-go="' + c.first + '"'
+           + ' style="--c:' + (CHCOLOR[ch] || 'var(--brand)') + '">'
+           + '<span class="tt">' + esc(ch) + '</span>'
+           + '<span class="tn">' + range + '</span>'
+           + '<span class="td">' + esc(CHSUM[ch] || '') + '</span>'
+           + '</button>';
+    }).join('');
   }
 
   // 시험 사용 신청 메뉴는 대표님 지시로 잠시 뺌 (2026-08-24) — 다시 넣을 때:
@@ -80,32 +92,29 @@
      0번은 차례 쪽(쪽번호 없음), 1번부터가 본문 1쪽입니다.
      쪽을 넣고 빼려면 여기만 고치면 됩니다. 넘김 줄·쪽번호·차례 카드가 전부 따라갑니다. */
   var BOOK = [
-    { r:'/',         t:'차례' },
-    { r:'/why',      t:'책을 덮게 되는 순간',          ch:'1장 · 부기를 만든 출발점' },
-    { r:'/ai',       t:'부기는 수업을 대신 만들지 않습니다', ch:'1장 · 부기를 만든 출발점' },
-    { r:'/gap',       t:'한 반에 서너 명',            ch:'2장 · 읽기를 둘러싼 근거' },
-    { r:'/adults',    t:'지금이 아니면 언제',          ch:'2장 · 읽기를 둘러싼 근거' },
-    { r:'/threshold', t:'낱말 몇 개가 읽기를 막습니다', ch:'2장 · 읽기를 둘러싼 근거' },
-    { r:'/matthew',   t:'격차는 저절로 벌어집니다',    ch:'2장 · 읽기를 둘러싼 근거' },
-    { r:'/spiral',    t:'끝까지 읽은 한 권이 다음을 부릅니다', ch:'2장 · 읽기를 둘러싼 근거' },
-    { r:'/read',     t:'같은 책을, 아이마다 다르게',   ch:'3장 · 아이가 읽는 화면' },
-    { r:'/word',     t:'낱말 뜻은 그 자리에서',        ch:'3장 · 아이가 읽는 화면' },
-    { r:'/vi',       t:'같은 쪽을 모국어로',           ch:'3장 · 아이가 읽는 화면' },
-    { r:'/level',    t:'한 장면을 두 가지 글로',       ch:'3장 · 아이가 읽는 화면' },
-    { r:'/level2',   t:'누구는 원문을, 누구는 재구성을', ch:'3장 · 아이가 읽는 화면' },
-    { r:'/chat',     t:'물어볼 게 있으려면 읽어야 합니다', ch:'3장 · 아이가 읽는 화면' },
-    { r:'/diagnose', t:'등수가 아니라, 무엇을 줄지',   ch:'3장 · 아이가 읽는 화면' },
-    { r:'/fun',      t:'책을 읽으면 소품을 얻어요',    ch:'3장 · 아이가 읽는 화면' },
-    { r:'/props',    t:'책마다 다른 소품',            ch:'3장 · 아이가 읽는 화면' },
-    { r:'/shelf',    t:'6학년이 1학년 때 쓴 한 줄',    ch:'3장 · 아이가 읽는 화면' },
-    { r:'/gallery',  t:'우리 반 작품 보기',            ch:'3장 · 아이가 읽는 화면' },
-    { r:'/teacher',  t:'선생님의 수업 구성을 도와 드립니다', ch:'4장 · 선생님이 쓰는 화면' },
-    { r:'/material', t:'수업 자료도 함께 준비합니다',  ch:'4장 · 선생님이 쓰는 화면' },
-    { r:'/code',     t:'숫자 여섯 개면 들어옵니다',    ch:'4장 · 선생님이 쓰는 화면' },
-    { r:'/class',    t:'상담 자료가 이미 만들어져 있습니다', ch:'4장 · 선생님이 쓰는 화면' },
-    { r:'/admin',    t:'학교 평균에서 아이 한 명까지', ch:'5장 · 기관이 보는 화면' },
-    { r:'/next',     t:'다음은 작가와 읽는 것입니다',  ch:'앞으로' },
-    { r:'/apply',    t:'우리 반에서 먼저 써 보시겠습니까?', ch:'마지막 쪽' }
+    { r:'/',          t:'차례' },
+    { r:'/why',       t:'책을 덮게 되는 순간',        ch:'부기를 만든 이유' },
+    { r:'/ai',        t:'AI에 맡기지 않는 자리',      ch:'부기를 만든 이유' },
+    { r:'/gap',       t:'한 반에 서너 명',            ch:'부기를 만든 이유' },
+    { r:'/adults',    t:'학교를 떠난 뒤',             ch:'부기를 만든 이유' },
+    { r:'/threshold', t:'모르는 낱말 2%',             ch:'부기를 만든 이유' },
+    { r:'/matthew',   t:'마태 효과',                  ch:'부기를 만든 이유' },
+    { r:'/spiral',    t:'상승 나선',                  ch:'부기를 만든 이유' },
+    { r:'/read',      t:'아이마다 다른 화면',         ch:'부기 학생 기능 소개' },
+    { r:'/word',      t:'낱말 뜻은 그 자리에서',      ch:'부기 학생 기능 소개' },
+    { r:'/vi',        t:'모국어로 읽는 쪽',           ch:'부기 학생 기능 소개' },
+    { r:'/level',     t:'원문, 재구성, 교훈',         ch:'부기 학생 기능 소개' },
+    { r:'/chat',      t:'등장인물에게 말 걸기',       ch:'부기 학생 기능 소개' },
+    { r:'/diagnose',  t:'등수 없는 12개 영역',        ch:'부기 학생 기능 소개' },
+    { r:'/fun',       t:'양치기 소년의 지팡이',       ch:'부기 학생 기능 소개' },
+    { r:'/shelf',     t:'6학년이 1학년 때 쓴 한 줄',  ch:'부기 학생 기능 소개' },
+    { r:'/gallery',   t:'우리 반 작품 보기',          ch:'부기 학생 기능 소개' },
+    { r:'/next',      t:'안데르센에게 묻기',          ch:'부기 학생 기능 소개' },
+    { r:'/teacher',   t:'온책읽기 8차시',             ch:'부기 교사 기능 소개' },
+    { r:'/code',      t:'여섯 자리 입장 코드',        ch:'부기 교사 기능 소개' },
+    { r:'/class',     t:'완독 권수와 연속 독서일',    ch:'부기 교사 기능 소개' },
+    { r:'/admin',     t:'평균 뒤의 아이 한 명',       ch:'부기 관리 기능 소개' },
+    { r:'/apply',     t:'시험 사용 신청',             ch:'시험 사용 신청' }
   ];
   var LAST = BOOK.length - 1;
   function bookAt(r){ for (var i=0;i<BOOK.length;i++) if (BOOK[i].r === r) return i; return -1; }
@@ -157,7 +166,7 @@
       try { var st = e && e.data; document.body.classList.toggle('is-flipping', !!st && st !== 'read'); } catch (_) {}
     });
     if (idx > 0) { try { pf.turnToPage(Math.min(idx, pf.getPageCount() - 1)); } catch (e) {} }
-    syncRail(); fitLive(); fitSpots();
+    syncRail(); fitLive(); fitSpots(); fitFill(); fitToc();
   }
 
   function spreadNow() { return pf ? Math.floor(pf.getCurrentPageIndex() / 2) : 0; }
@@ -247,6 +256,58 @@
   addEventListener('resize', fitLive);
   // 이미지가 fitLive 뒤에 로드되면 장치 높이가 달라질 수 있어, 로드가 끝나면 한 번 더 맞춥니다.
   addEventListener('load', fitLive);
+
+  /* ── 삽화 없는 쪽을 세로 가운데로 ───────────────
+     StPageFlip이 쪽에 display:block을 박아 flex 세로 정렬이 죽어 있습니다(지뢰 11).
+     그래서 삽화가 없는 쪽은 글이 위로 몰리고 아래가 300~460px씩 빕니다.
+     남는 높이를 재서 절반만 첫 자식 위에 얹으면 내용이 쪽 가운데로 내려옵니다.
+     삽화가 있는 쪽은 fitSpots()가 이미 채우므로 건드리지 않습니다.
+     **쪽(.bkpage) 자체에 인라인 style을 주면 안 됩니다 — StPageFlip이 통째로 덮어씁니다(지뢰 1).**
+     그래서 여백은 첫 자식에 넣습니다. 자식의 style은 건드리지 않으니 살아남습니다.
+     반드시 fitLive()·fitSpots() 뒤에 부를 것 — 앞서 부르면 장치 높이를 잘못 잽니다. */
+  function fitFill() {
+    document.querySelectorAll('.bkpage').forEach(function (p) {
+      // 먼저 되돌리고 다시 잽니다 (첫 자식이든 둘째든 지난번에 넣은 값을 지웁니다)
+      for (var i = 0; i < 2 && p.children[i]; i++) p.children[i].style.marginTop = '';
+      if (p.querySelector('.spot')) return;
+      if (p.classList.contains('bookcover') || p.classList.contains('toc-list')) return;
+      if (p.classList.contains('art') || p.classList.contains('wide')) return;
+      var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
+      if (hidden) p.style.display = 'block';
+      var kids = [].slice.call(p.children).filter(function (e) {
+        var s = getComputedStyle(e);
+        return s.display !== 'none' && s.visibility !== 'hidden' && e.getBoundingClientRect().height > 0;
+      });
+      if (kids.length) {
+        var pr = p.getBoundingClientRect(), cs = getComputedStyle(p);
+        var bottom = Math.max.apply(null, kids.map(function (e) { return e.getBoundingClientRect().bottom; }));
+        var room = pr.bottom - (parseFloat(cs.paddingBottom) || 0) - bottom;
+        // 장 이름(.ch)은 쪽 맨 위에 붙어 있어야 하므로 그 아래부터 내립니다.
+        var top = (kids[0].classList.contains('ch') && kids[1]) ? kids[1] : kids[0];
+        if (room > 90) top.style.marginTop = ((parseFloat(getComputedStyle(top).marginTop) || 0) + room / 2) + 'px';
+      }
+      if (hidden) p.style.display = prev;
+    });
+  }
+  addEventListener('resize', fitFill);
+  addEventListener('load', fitFill);
+
+  /* ── 차례를 쪽 높이에 맞춰 벌림 ────────────────
+     장 단위 차례는 다섯 줄뿐이라 그냥 두면 쪽 아래가 250px쯤 빕니다(빈 곳 금지 지시).
+     삽화와 같은 방법으로 남는 높이를 실측해 #hub를 늘리면,
+     space-between이 다섯 줄을 고르게 벌려 쪽이 찹니다. */
+  function fitToc() {
+    var p = document.querySelector('.bkpage.toc-list'), hub = $('hub');
+    if (!p || !hub) return;
+    var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
+    if (hidden) p.style.display = 'block';
+    hub.style.height = 'auto';
+    var room = p.clientHeight - hub.offsetTop - parseFloat(getComputedStyle(p).paddingBottom || 0);
+    if (room > hub.scrollHeight) hub.style.height = room + 'px';
+    if (hidden) p.style.display = prev;
+  }
+  addEventListener('resize', fitToc);
+  addEventListener('load', fitToc);
 
   /* ── 삽화를 남는 공간에 맞춤 ──────────────────
      StPageFlip이 쪽에 display:block을 인라인으로 박아 flex 배치가 무시됩니다.
