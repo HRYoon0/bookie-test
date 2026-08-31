@@ -643,6 +643,14 @@ footer p{margin:0 0 6px}
 .more-n{margin:12px 0 0;font-size:13px;color:var(--ink-faint);text-align:center}
 .bkpage.live .demo,.bkpage.live .tpanel,.bkpage.live .chat,.bkpage.live .form,
 .bkpage.live .shelf,.bkpage.live .gal,.bkpage.live .codebox,.bkpage.live .namecard{margin-bottom:0}
+/* 24쪽 후기 폼 — 쪽 안에 앉아야 해서 여백만 줄입니다. 글자 크기는 그대로 둡니다.
+   여백을 줄인 만큼 fitLive의 zoom이 덜 걸려 오히려 글씨가 크게 보입니다. */
+.bkpage.live .form{padding:20px 22px}
+.bkpage.live .fgrid{gap:12px;margin-bottom:12px}
+.bkpage.live .agree{padding:13px 15px;margin-bottom:12px}
+.bkpage.live .agree h4{font-size:14.5px;margin-bottom:7px}
+.bkpage.live .arow{padding:7px 0}
+.bkpage.live .done{padding:24px 26px}
 
 /* 어두운 쪽 */
 .bkpage.dark h2{color:var(--wall-ink)}
@@ -904,6 +912,28 @@ footer p{margin:0 0 6px}
 .formmsg.on{display:block}
 .formmsg.ok{background:var(--brand-soft);color:var(--brand-deep)}
 .formmsg.no{background:var(--amber-bg);color:var(--c-orange)}
+
+/* ── 후기 폼의 사진 고르기 (24쪽) ───────────────
+   파일 입력 자체는 감추고 label을 단추처럼 씁니다. 브라우저마다 다르게 생긴
+   기본 「파일 선택」 단추가 쪽 안에서 튀어 보이기 때문입니다.
+   고른 사진은 app.js가 캔버스로 긴 변 1600px까지 줄여서 보냅니다. */
+.shots{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.shots input[type=file]{position:absolute;opacity:0;width:0;height:0}
+.shots .pick{border:1px solid var(--brand);background:var(--surface);color:var(--brand-deep);
+  border-radius:var(--r-pill);padding:9px 18px;font-size:13.5px;font-weight:700;cursor:pointer;
+  flex:none;transition:background .18s var(--ease)}
+.shots .pick:hover{background:var(--brand-soft)}
+.shots input[type=file]:focus-visible+.pick{outline:2px solid var(--brand);outline-offset:2px}
+.shots .hintx{flex:1;min-width:180px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs:empty{display:none}
+.thumb{position:relative;display:block;width:64px;height:64px;border-radius:9px;overflow:hidden;
+  border:1px solid var(--line);background:var(--surface)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:2px;right:2px;width:20px;height:20px;border:0;border-radius:50%;
+  background:rgba(31,43,32,.78);color:#fff;font-size:13px;line-height:1;cursor:pointer;padding:0}
+.thumb button:hover{background:var(--c-orange)}
+
 .done{background:var(--card);border:1px solid var(--brand);border-radius:var(--radius);padding:34px;max-width:44rem;box-shadow:var(--shadow-sm)}
 .done h3{font-family:var(--serif);font-size:22px;color:var(--brand-deep);margin:0 0 10px}
 .done ol{font-size:14.5px;padding-left:1.2rem;margin:14px 0 0}

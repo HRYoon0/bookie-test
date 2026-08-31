@@ -50,13 +50,13 @@
      장을 누르면 그 장의 첫 쪽으로 갑니다. */
   var CHCOLOR = { '부기를 만든 이유': 'var(--gold)', '부기 학생 기능 소개': 'var(--g3)',
                   '부기 교사 기능 소개': 'var(--g5)', '부기 관리 기능 소개': 'var(--g6)',
-                  '시험 사용 신청': 'var(--brand)' };
+                  '사용 후기와 신청': 'var(--brand)' };
   var CHSUM = {
     '부기를 만든 이유':    '한 쪽에 모르는 낱말 서너 개면 아이는 멈춥니다. PISA 14.7%, 어휘 98% 임계값, 마태 효과, 상승 나선.',
     '부기 학생 기능 소개': '낱말 뜻풀이, 모국어로 읽기, 원문과 재구성, 등장인물과의 대화, 12개 영역 진단, 소품과 서고, 우리 반 작품.',
     '부기 교사 기능 소개': '온책읽기 8차시를 골라 담고, 여섯 자리 숫자로 아이들을 들이고, 상담에 쓸 기록을 받습니다.',
     '부기 관리 기능 소개': '학교와 학급 현황에서 아이 한 명까지. 담임이 쓴 관찰노트는 이 화면에 오지 않습니다.',
-    '시험 사용 신청':      '소속·성명·이메일 세 가지면 됩니다. 구글 폼으로도 받습니다.'
+    '사용 후기와 신청':    '써 보신 뒤 사진과 후기를 남겨 주세요. 신청은 QR로 받습니다.'
   };
 
   function buildToc() {
@@ -116,7 +116,7 @@
     { r:'/code',      t:'여섯 자리 입장 코드',        ch:'부기 교사 기능 소개' },
     { r:'/class',     t:'완독 권수와 연속 독서일',    ch:'부기 교사 기능 소개' },
     { r:'/admin',     t:'평균 뒤의 아이 한 명',       ch:'부기 관리 기능 소개' },
-    { r:'/apply',     t:'시험 사용 신청',             ch:'시험 사용 신청' }
+    { r:'/apply',     t:'사용 후기 제출',             ch:'사용 후기와 신청' }
   ];
   var LAST = BOOK.length - 1;
   function bookAt(r){ for (var i=0;i<BOOK.length;i++) if (BOOK[i].r === r) return i; return -1; }
@@ -685,14 +685,24 @@
     }
   }
 
-  /* ── 시험 사용 신청 폼 ───────────────────── */
-  // Apps Script 웹앱 배포 후 나온 /exec 주소를 여기에 넣으세요.
-  var APPLY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxIu0ElCK1AxsAk8t7RPoAurUhkWD1o251pRt8mzKQRAQmlUnUMoBqsNnvzUi7jD1BT6w/exec';
+  /* ── 사용 후기 제출 폼 ─────────────────────────
+     시험 사용 신청은 24쪽 오른쪽 QR(구글 폼)로 받습니다. 이 폼은 이미 써 보신 선생님이
+     후기와 수업 사진을 보내는 자리입니다. 접수는 별도의 Apps Script 웹앱이 받아
+     구글 시트에 한 줄 쓰고, 사진은 드라이브에 넣은 뒤 그 주소를 시트에 적습니다.
+     설치·배포 방법은 web/apps-script/README.md 의 「사용 후기」 절을 보세요. */
+  // 후기용 Apps Script 웹앱을 배포한 뒤 나온 /exec 주소를 여기에 넣으세요.
+  // (신청용으로 쓰던 주소와 다른 것입니다. 그쪽은 건드리지 않았습니다.)
+  var FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwdvX87Yu8pJCkaADgx3gvbtFYfQw8_K4MLR0SrWbsKDhvXyFgTnU1xoIqgef6bMyRYaQ/exec';
 
-  (function applyForm() {
-    var form = $('applyForm'); if (!form) return;
+  var SHOT_MAX   = 3;            // 사진 장수
+  var SHOT_EDGE  = 1600;         // 긴 변 px — 이보다 크면 줄여서 보냅니다
+  var SHOT_QUAL  = 0.82;         // JPEG 품질
+  var SHOT_BYTES = 7 * 1024 * 1024;   // 보낼 수 있는 사진 총량(줄인 뒤 기준)
+
+  (function feedbackForm() {
+    var form = $('fbForm'); if (!form) return;
     var GRADES = ['1학년','2학년','3학년','4학년','5학년','6학년','전학년'];
-    $('f-grades').innerHTML = GRADES.map(function (g, i) {
+    $('f-grades').innerHTML = GRADES.map(function (g) {
       return '<label class="gchk"><input type="checkbox" value="'+g+'"><span>'+g+'</span></label>'; }).join('');
 
     function fldOf(el){ return el.closest('.fld'); }
@@ -703,42 +713,101 @@
     });
 
     function msg(kind, text) {
-      var m = $('applyMsg');
+      var m = $('fbMsg');
       m.className = 'formmsg on ' + kind;
       m.innerHTML = text;
     }
 
+    /* ── 사진 고르기 ───────────────────────────
+       원본을 그대로 보내면 한 장에 5MB가 넘어 Apps Script가 받다 끊깁니다.
+       캔버스로 긴 변 1600px·JPEG로 줄여서 보냅니다. 교실 사진에는 이 정도면 충분합니다. */
+    var shots = [];   // { name, mime, data(base64), url(미리보기) }
+
+    function drawThumbs() {
+      $('f-thumbs').innerHTML = shots.map(function (s, i) {
+        return '<span class="thumb"><img src="' + s.url + '" alt="">'
+             + '<button type="button" data-x="' + i + '" aria-label="' + esc(s.name) + ' 빼기">×</button></span>';
+      }).join('');
+      $('f-thumbs').querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          URL.revokeObjectURL(shots[+b.dataset.x].url);
+          shots.splice(+b.dataset.x, 1); drawThumbs(); fitLive();
+        });
+      });
+    }
+
+    function shrink(file) {
+      return new Promise(function (done, fail) {
+        var img = new Image(), url = URL.createObjectURL(file);
+        img.onload = function () {
+          var k = Math.min(1, SHOT_EDGE / Math.max(img.width, img.height));
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          var dataUrl = c.toDataURL('image/jpeg', SHOT_QUAL);
+          done({ name: file.name, mime: 'image/jpeg',
+                 data: dataUrl.slice(dataUrl.indexOf(',') + 1),
+                 url: dataUrl });
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); fail(new Error(file.name)); };
+        img.src = url;
+      });
+    }
+
+    $('f-shots').addEventListener('change', function (e) {
+      var files = [].slice.call(e.target.files || []);
+      e.target.value = '';                       // 같은 파일을 다시 고를 수 있게
+      if (!files.length) return;
+      var room = SHOT_MAX - shots.length;
+      if (room <= 0) { msg('no', '사진은 ' + SHOT_MAX + '장까지 올리실 수 있습니다.'); return; }
+      var over = files.length > room;
+      Promise.all(files.slice(0, room).map(shrink)).then(function (list) {
+        shots = shots.concat(list);
+        var total = shots.reduce(function (n, s) { return n + s.data.length * 0.75; }, 0);
+        if (total > SHOT_BYTES) {
+          shots.pop();
+          msg('no', '사진 용량이 커서 마지막 한 장은 빼 두었습니다. 장수를 줄여 보내 주세요.');
+        } else if (over) {
+          msg('no', '사진은 ' + SHOT_MAX + '장까지라 앞의 ' + room + '장만 담았습니다.');
+        }
+        drawThumbs(); fitLive();
+      }).catch(function () {
+        msg('no', '사진을 읽지 못했습니다. 다른 파일로 해 보시겠어요?');
+      });
+    });
+
+    /* ── 보내기 ───────────────────────────────── */
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = {
-        org:   $('f-org').value.trim(),
-        name:  $('f-name').value.trim(),
-        email: $('f-email').value.trim(),
-        note:  $('f-note').value.trim(),
+        org:    $('f-org').value.trim(),
+        name:   $('f-name').value.trim(),
+        note:   $('f-note').value.trim(),
         grades: [].slice.call($('f-grades').querySelectorAll('input:checked')).map(function(c){ return c.value; }),
-        agreePrivacy: $('a-privacy').checked
+        agreePromo:   $('a-promo').checked,
+        photos: shots.map(function (s) { return { name: s.name, mime: s.mime, data: s.data }; })
       };
 
       var first = null;
       function need(el, ok){ if (!ok) { bad(el, true); if (!first) first = el; } return ok; }
-      need($('f-org'),   v.org.length > 0);
-      need($('f-name'),  v.name.length > 0);
-      need($('f-email'), /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email));
-      if (first) { first.scrollIntoView({ block:'center', behavior:'smooth' }); msg('no', '표시된 항목을 확인해 주세요.'); return; }
-      if (!v.agreePrivacy) { msg('no', '개인정보 수집·이용 동의가 있어야 계정을 발급할 수 있습니다.'); return; }
+      need($('f-org'),  v.org.length > 0);
+      need($('f-name'), v.name.length > 0);
+      need($('f-note'), v.note.length > 0);
+      if (first) { first.focus(); msg('no', '표시된 항목을 확인해 주세요.'); return; }
 
-      var btn = $('applyBtn');
+      var btn = $('fbBtn');
+      function wake(text) { btn.disabled = false; btn.textContent = '후기 보내기'; if (text) msg('no', text); }
       btn.disabled = true; btn.textContent = '보내는 중…';
-      msg('ok', '접수 내용을 보내고 있습니다.');
+      msg('ok', v.photos.length ? '후기와 사진을 보내고 있습니다. 사진이 있으면 조금 걸립니다.' : '후기를 보내고 있습니다.');
 
-      if (!APPLY_ENDPOINT) {
-        btn.disabled = false; btn.textContent = '신청하고 계정 받기';
-        msg('no', '아직 접수 서버가 연결되지 않았습니다. <code>web/app.js</code>의 <b>APPLY_ENDPOINT</b>에 Apps Script 웹앱 주소를 넣어 주세요. '
-          + '설치 방법은 <code>web/apps-script/README.md</code>에 있습니다.');
+      if (!FEEDBACK_ENDPOINT) {
+        wake('아직 접수 서버가 연결되지 않았습니다. <code>web/app.js</code>의 <b>FEEDBACK_ENDPOINT</b>에 '
+           + 'Apps Script 웹앱 주소를 넣어 주세요. 설치 방법은 <code>web/apps-script/README.md</code>에 있습니다.');
         return;
       }
 
-      fetch(APPLY_ENDPOINT, {
+      fetch(FEEDBACK_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },   // preflight 회피
         body: JSON.stringify(v)
@@ -747,18 +816,16 @@
       .then(function (res) {
         if (res && res.ok) {
           form.style.display = 'none';
-          $('doneWho').textContent = v.name + ' 선생님(' + v.org + ')으로 접수했습니다.';
-          $('applyDone').style.display = 'block';
-          fitSpots();   // 완료 상자가 열리며 자리가 줄었으니 삽화를 다시 맞춥니다
-          $('applyDone').scrollIntoView({ block:'center', behavior:'smooth' });
+          $('doneWho').textContent = v.name + ' 선생님(' + v.org + ')께서 보내 주신 후기를 받았습니다.'
+            + (v.photos.length ? ' 사진 ' + v.photos.length + '장도 함께 받았습니다.' : '');
+          $('fbDone').style.display = 'block';
+          fitLive(); fitSpots();   // 완료 상자로 바뀌며 높이가 달라졌으니 다시 맞춥니다
         } else {
-          btn.disabled = false; btn.textContent = '신청하고 계정 받기';
-          msg('no', (res && res.error) || '접수에 실패했습니다. 잠시 뒤 다시 시도해 주세요.');
+          wake((res && res.error) || '접수에 실패했습니다. 잠시 뒤 다시 시도해 주세요.');
         }
       })
       .catch(function () {
-        btn.disabled = false; btn.textContent = '신청하고 계정 받기';
-        msg('no', '연결에 실패했습니다. 인터넷 상태를 확인하시고 다시 시도해 주세요. 계속 안 되면 msecm@msecm.co.kr 로 보내 주세요.');
+        wake('연결에 실패했습니다. 인터넷 상태를 확인하시고 다시 시도해 주세요. 계속 안 되면 msecm@msecm.co.kr 로 보내 주세요.');
       });
     });
   })();

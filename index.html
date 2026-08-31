@@ -3,7 +3,7 @@
   부기 소개 — 두 쪽을 펼친 책 (web/) · 제품 코드가 아닙니다.
   한 화면이 펼친 두 쪽입니다. 왼쪽은 그림이나 장치, 오른쪽은 글.
   쪽 순서는 app.js 의 BOOK 배열 하나가 정합니다.
-  데모 id(#rdr · #msgs · #modes · #digits · #crumb · #applyForm …)는 app.js가 잡고 있으니 바꾸지 마세요.
+  데모 id(#rdr · #msgs · #modes · #digits · #crumb · #fbForm …)는 app.js가 잡고 있으니 바꾸지 마세요.
 -->
 <html lang="ko">
 <head>
@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&family=Cormorant+Garamond:ital,wght@1,500&display=swap">
 <link rel="stylesheet" href="page-flip.css">
-<link rel="stylesheet" href="_style.css?v=460e1948">
+<link rel="stylesheet" href="_style.css?v=4dffbfce">
 </head>
 <body>
 
@@ -421,7 +421,8 @@
     </div>
     <img class="spot" src="assets/spots/spot-p23-lookup.webp" alt="돋보기를 들고 책 무더기를 살펴보는 책 요정"></div>
   <div class="bkpage L live" data-spread="apply">
-  <form class="form" id="applyForm" novalidate>
+  <div class="livebox">
+  <form class="form" id="fbForm" novalidate>
     <div class="fgrid">
       <div class="fld"><label for="f-org">소속 (학교·기관)<span class="req">*</span></label>
         <input id="f-org" name="org" type="text" placeholder="예) 은하수초등학교" autocomplete="organization" required>
@@ -429,43 +430,47 @@
       <div class="fld"><label for="f-name">성명<span class="req">*</span></label>
         <input id="f-name" name="name" type="text" placeholder="예) 김하늘" autocomplete="name" required>
         <span class="err">성명을 적어 주세요.</span></div>
-      <div class="fld"><label for="f-email">이메일<span class="req">*</span></label>
-        <input id="f-email" name="email" type="email" placeholder="name@school.kr" autocomplete="email" required>
-        <span class="hintx">계정 안내를 받으실 주소입니다.</span>
-        <span class="err">이메일 형식을 확인해 주세요.</span></div>
-      <div class="fld wide"><label>담당 학년 <span style="font-weight:400;color:var(--ink-faint)">(선택)</span></label>
-        <div class="grades" id="f-grades"></div>
-        <span class="hintx">여러 학년을 맡고 계시면 모두 눌러 주세요.</span></div>
-      <div class="fld wide"><label for="f-note">하고 싶은 말 <span style="font-weight:400;color:var(--ink-faint)">(선택)</span></label>
-        <textarea id="f-note" name="note" rows="3" placeholder="지금 독서수업에서 가장 답답한 점을 한 줄만 적어 주세요."></textarea></div>
+      <div class="fld wide"><label>함께 읽은 학년 <span style="font-weight:400;color:var(--ink-faint)">(선택)</span></label>
+        <div class="grades" id="f-grades"></div></div>
+      <div class="fld wide"><label for="f-note">사용 후기<span class="req">*</span></label>
+        <textarea id="f-note" name="note" rows="4" placeholder="어떤 수업에 쓰셨는지, 아이들이 어떻게 반응했는지, 불편했던 점은 무엇인지 편하게 적어 주세요."></textarea>
+        <span class="err">후기를 적어 주세요.</span></div>
+      <div class="fld wide"><label for="f-shots">수업 사진 <span style="font-weight:400;color:var(--ink-faint)">(선택 · 3장까지)</span></label>
+        <div class="shots">
+          <input id="f-shots" type="file" accept="image/*" multiple>
+          <label class="pick" for="f-shots">사진 고르기</label>
+          <span class="hintx">아이 얼굴·이름표·명렬표가 나오지 않은 사진만 올려 주세요.</span>
+        </div>
+        <div class="thumbs" id="f-thumbs"></div></div>
     </div>
 
     <div class="agree">
       <h4>동의 항목</h4>
       <div class="arow">
-        <input type="checkbox" id="a-privacy" required>
-        <div><label for="a-privacy" class="t">개인정보 수집·이용에 동의합니다<em>필수</em></label>
-          <div class="d">시험 사용 계정 발급과 안내를 위해 아래 항목만 수집합니다.</div>
-          <details><summary>수집 항목과 보유 기간 보기</summary>
-            <div class="full">
-              <b>수집 항목</b>소속, 성명, 이메일 (담당 학년은 선택)
-              <b>이용 목적</b>시험 사용 계정 발급 · 활용 안내 · 사용 의견 수렴 · 사례비 지급 대상 관리
-              <b>보유 기간</b>시험 사용 종료 후 1년. 사례비를 지급한 경우 관계 법령에 따라 5년 보관
-              <b>거부할 권리</b>동의를 거부하실 수 있으나, 계정 발급이 불가능합니다.
-            </div></details></div>
+        <input type="checkbox" id="a-promo">
+        <div><label for="a-promo" class="t">후기와 사진을 부기 소개 자료에 쓰는 것에 동의합니다<em class="opt">선택</em></label>
+          <div class="d">쓸 때는 사람이 나온 곳을 모자이크하고, 학교 이름과 성명은 익명으로 바꿉니다.
+            동의하지 않으셔도 접수됩니다. 그때는 제품을 고치는 데만 씁니다.</div></div>
       </div>
     </div>
 
     <div class="submit">
-      <button type="submit" id="applyBtn">신청하고 계정 받기</button>
-      <span class="note">접수 내용을 확인한 뒤 남겨 주신 메일로 안내드립니다.</span>
+      <button type="submit" id="fbBtn">후기 보내기</button>
+      <span class="note">보내 주신 내용은 다음 판을 고치는 데 씁니다.</span>
     </div>
-    <div class="formmsg" id="applyMsg"></div>
-  </form></div>
+    <div class="formmsg" id="fbMsg"></div>
+  </form>
+  <div class="done" id="fbDone" style="display:none">
+    <h3>후기를 받았습니다</h3>
+    <p id="doneWho"></p>
+    <p style="margin:0">보내 주신 내용은 <strong>다음 판을 고치는 데</strong> 쓰겠습니다. 확인하다 여쭐 것이 생기면 학교로 연락드리겠습니다.</p>
+  </div>
+  </div></div>
   <div class="bkpage R" data-spread="apply">
-    <p class="ch">시험 사용 신청</p>
-    <h2>시험 사용 신청</h2>
-    <p class="say">소속·성명·이메일 세 가지만 적으면 됩니다. 접수 내용을 확인한 뒤 테스트 아이디와 초기 비밀번호, 활용 가이드를 메일로 보내 드립니다.</p>
+    <p class="ch">사용 후기와 신청</p>
+    <h2>써 보시고 알려 주세요</h2>
+    <p class="say">이미 부기를 쓰고 계신 선생님은 왼쪽에 후기를 남겨 주세요. 수업 사진도 세 장까지 함께 올리실 수 있습니다. 잘된 점보다 <strong>불편했던 점</strong>이 저희에게는 더 쓸모가 있습니다.</p>
+    <p class="say">아직 안 써 보셨다면 아래 QR로 시범 사용을 신청해 주세요. 접수 내용을 확인한 뒤 테스트 계정과 활용 가이드를 메일로 보내 드립니다.</p>
     <img class="spot" src="assets/spots/spot-p24-invite.webp" alt="책을 함께 들고 손을 흔드는 두 아이와 뛰어오르는 책 요정">
     <div class="meet">
       <a class="qr" href="https://forms.gle/sUdhtbvTSPtfGWwG7" target="_blank" rel="noopener"
@@ -473,27 +478,16 @@
         <img src="assets/qr-apply.svg" alt="신청 폼 주소 forms.gle/sUdhtbvTSPtfGWwG7 를 담은 QR 코드">
       </a>
       <div class="meetT">
-        <b>QR로도 신청하실 수 있습니다</b>
+        <b>시범 사용 신청은 여기로</b>
         <p>아이들에게 좋은 영향으로 남기를 바라며 만들었습니다. 문해력에도 조금은 보탬이 되었으면 하고요. 시범 사용에 함께해 주실 선생님을 기다립니다.</p>
         <a href="https://forms.gle/sUdhtbvTSPtfGWwG7" target="_blank" rel="noopener">forms.gle/sUdhtbvTSPtfGWwG7</a>
       </div>
     </div>
-  <div class="done" id="applyDone" style="display:none">
-    <h3>접수되었습니다</h3>
-    <p id="doneWho"></p>
-    <p style="margin:0">접수 내용을 확인한 뒤 <strong>메일로 테스트 계정과 활용 가이드</strong>를 보내 드립니다.</p>
-    <ol>
-      <li>운영팀이 접수 내용을 확인합니다.</li>
-      <li>남겨 주신 메일로 아이디, 초기 비밀번호, 학급 입장 코드를 안내드립니다.</li>
-      <li>안내받은 주소로 접속해 로그인하고, 설정에서 비밀번호를 바꿉니다.</li>
-      <li>학급을 만들고 여섯 자리 코드를 아이들에게 알려 주면 바로 수업할 수 있습니다.</li>
-    </ol>
   </div>
-</div>
 </div>
 <footer id="rail"></footer>
 <div class="tip" id="tip" role="status" aria-live="polite"><b></b><span></span></div>
 <script src="page-flip.js"></script>
-<script src="app.js?v=0f7f6f34"></script>
+<script src="app.js?v=77600b5c"></script>
 </body>
 </html>
