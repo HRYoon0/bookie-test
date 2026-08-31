@@ -912,12 +912,12 @@ footer p{margin:0 0 6px}
 .later b{display:block;font-family:var(--serif);font-size:15.5px;color:var(--c-orange);margin-bottom:6px}
 .later p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.75}
 
-/* ── 설명회 모집 QR (24쪽) ───────────────────
-   기한이 있는 안내입니다. 9월 9일이 지나면 index.html의 .meet 블록을 지우면 됩니다.
-   QR은 assets/qr-apply.svg (segno 생성, forms.gle/kCn7mBDQE2fLdFkp6). */
+/* ── 시범 사용 신청 QR (24쪽) ───────────────────
+   QR은 assets/qr-apply.svg (forms.gle/sUdhtbvTSPtfGWwG7). 날짜가 걸린 안내가 아니라
+   상시 안내이므로 기한이 지나 지울 일은 없습니다. */
 .meet{display:flex;gap:16px;align-items:center;margin-top:16px;padding:14px 16px;
       background:var(--card);border:1px solid var(--brand);border-radius:14px;max-width:44rem}
-/* QR 크기를 줄이지 말 것. 41x41 모듈(오류정정 Q)이라 그림이 182px 아래로 내려가면
+/* QR 크기를 줄이지 말 것. 33x33 모듈(버전 4, 오류정정 Q)이라 그림이 182px 아래로 내려가면
    화면을 휴대폰으로 찍을 때 생기는 흐림과 축소를 못 견딥니다. 실측으로 정한 값입니다.
    182 + 안쪽 여백 12 + 테두리 2 = 196. */
 .meet .qr{flex:0 0 auto;width:196px;height:196px;padding:6px;border-radius:8px;
