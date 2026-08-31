@@ -692,12 +692,19 @@
      설치·배포 방법은 web/apps-script/README.md 의 「사용 후기」 절을 보세요. */
   // 후기용 Apps Script 웹앱을 배포한 뒤 나온 /exec 주소를 여기에 넣으세요.
   // (신청용으로 쓰던 주소와 다른 것입니다. 그쪽은 건드리지 않았습니다.)
-  var FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwdvX87Yu8pJCkaADgx3gvbtFYfQw8_K4MLR0SrWbsKDhvXyFgTnU1xoIqgef6bMyRYaQ/exec';
+  var FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzNDTm-K70EwhrRIN-Ci6f5I5WnQ4WUiwNB1fnX1f7opm5v1fFGSwBIiQHoSiookGEj/exec';
 
-  var SHOT_MAX   = 3;            // 사진 장수
-  var SHOT_EDGE  = 1600;         // 긴 변 px — 이보다 크면 줄여서 보냅니다
-  var SHOT_QUAL  = 0.82;         // JPEG 품질
-  var SHOT_BYTES = 7 * 1024 * 1024;   // 보낼 수 있는 사진 총량(줄인 뒤 기준)
+  /* 사진 장수에는 제한을 두지 않습니다 (2026-08-31 대표님 지시).
+     대신 총량이 커지면 되돌려 보내지 않고 더 작게 다시 굽습니다. Apps Script가 한 번에
+     받을 수 있는 양에는 물리적 한계가 있어서, 거절 대신 화질을 낮추는 쪽을 골랐습니다.
+     선생님이 스무 장을 올리든 접수는 됩니다. 다만 장수가 많으면 한 장씩은 덜 선명해집니다. */
+  var SHOT_STEPS = [              // 긴 변 px, JPEG 품질 — 총량이 넘치면 아래로 한 칸씩
+    { edge: 1600, qual: 0.82 },
+    { edge: 1280, qual: 0.75 },
+    { edge: 1024, qual: 0.70 },
+    { edge:  800, qual: 0.62 }
+  ];
+  var SHOT_BUDGET = 7 * 1024 * 1024;   // 한 번에 보낼 총량 목표(줄인 뒤 기준)
 
   (function feedbackForm() {
     var form = $('fbForm'); if (!form) return;
@@ -720,8 +727,9 @@
 
     /* ── 사진 고르기 ───────────────────────────
        원본을 그대로 보내면 한 장에 5MB가 넘어 Apps Script가 받다 끊깁니다.
-       캔버스로 긴 변 1600px·JPEG로 줄여서 보냅니다. 교실 사진에는 이 정도면 충분합니다. */
-    var shots = [];   // { name, mime, data(base64), url(미리보기) }
+       캔버스로 줄여서 보냅니다. 장수 제한은 없고, 총량이 넘치면 더 작게 다시 굽습니다. */
+    var shots = [];       // { file, name, mime, data(base64), url(미리보기) }
+    var shotStep = 0;     // 지금 쓰고 있는 SHOT_STEPS 단계
 
     function drawThumbs() {
       $('f-thumbs').innerHTML = shots.map(function (s, i) {
@@ -736,17 +744,18 @@
       });
     }
 
-    function shrink(file) {
+    function shrink(file, step) {
+      var S = SHOT_STEPS[step];
       return new Promise(function (done, fail) {
         var img = new Image(), url = URL.createObjectURL(file);
         img.onload = function () {
-          var k = Math.min(1, SHOT_EDGE / Math.max(img.width, img.height));
+          var k = Math.min(1, S.edge / Math.max(img.width, img.height));
           var c = document.createElement('canvas');
           c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
           c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
           URL.revokeObjectURL(url);
-          var dataUrl = c.toDataURL('image/jpeg', SHOT_QUAL);
-          done({ name: file.name, mime: 'image/jpeg',
+          var dataUrl = c.toDataURL('image/jpeg', S.qual);
+          done({ file: file, name: file.name, mime: 'image/jpeg',
                  data: dataUrl.slice(dataUrl.indexOf(',') + 1),
                  url: dataUrl });
         };
@@ -755,23 +764,36 @@
       });
     }
 
+    function bytes() {
+      return shots.reduce(function (n, s) { return n + s.data.length * 0.75; }, 0);
+    }
+    function mb(n) { return (n / 1024 / 1024).toFixed(1); }
+
+    // 총량이 목표를 넘으면 전부 한 단계 작게 다시 굽습니다. 마지막 단계까지 가면 거기서 멈춥니다.
+    function refit() {
+      if (bytes() <= SHOT_BUDGET || shotStep >= SHOT_STEPS.length - 1) return Promise.resolve();
+      shotStep++;
+      return Promise.all(shots.map(function (s) { return shrink(s.file, shotStep); }))
+        .then(function (list) { shots = list; return refit(); });
+    }
+
     $('f-shots').addEventListener('change', function (e) {
       var files = [].slice.call(e.target.files || []);
       e.target.value = '';                       // 같은 파일을 다시 고를 수 있게
       if (!files.length) return;
-      var room = SHOT_MAX - shots.length;
-      if (room <= 0) { msg('no', '사진은 ' + SHOT_MAX + '장까지 올리실 수 있습니다.'); return; }
-      var over = files.length > room;
-      Promise.all(files.slice(0, room).map(shrink)).then(function (list) {
+      msg('ok', '사진 ' + files.length + '장을 담는 중입니다.');
+      Promise.all(files.map(function (f) { return shrink(f, shotStep); })).then(function (list) {
         shots = shots.concat(list);
-        var total = shots.reduce(function (n, s) { return n + s.data.length * 0.75; }, 0);
-        if (total > SHOT_BYTES) {
-          shots.pop();
-          msg('no', '사진 용량이 커서 마지막 한 장은 빼 두었습니다. 장수를 줄여 보내 주세요.');
-        } else if (over) {
-          msg('no', '사진은 ' + SHOT_MAX + '장까지라 앞의 ' + room + '장만 담았습니다.');
-        }
-        drawThumbs(); fitLive();
+        var before = shotStep;
+        return refit().then(function () {
+          drawThumbs(); fitLive();
+          if (shotStep > before) {
+            msg('ok', '사진 ' + shots.length + '장을 담았습니다. 양이 많아 화질을 조금 낮췄습니다. ('
+                    + mb(bytes()) + 'MB)');
+          } else {
+            msg('ok', '사진 ' + shots.length + '장을 담았습니다. (' + mb(bytes()) + 'MB)');
+          }
+        });
       }).catch(function () {
         msg('no', '사진을 읽지 못했습니다. 다른 파일로 해 보시겠어요?');
       });
