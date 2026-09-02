@@ -71,8 +71,9 @@
     // 지어낸 요약이 아니라 BOOK 배열의 제목이라 쪽을 고치면 차례도 따라옵니다.
     $('hub').innerHTML = order.map(function (ch) {
       var c = seen[ch], range = c.from === c.to ? c.from + '쪽' : c.from + '–' + c.to + '쪽';
-      var titles = BOOK.filter(function (b, i) { return i && b.ch === ch; })
-                       .map(function (b) { return esc(b.t); }).join('<i>·</i>');
+      // 쪽번호를 앞세운 작은 차례 항목으로 (2026-09-02: 점으로 이어 붙인 낱말 나열이 «의미 없는 열거»로 보인다는 지적)
+      var titles = BOOK.map(function (b, i) { return i && b.ch === ch
+                       ? '<span class="ti' + (/준비 중/.test(b.t) ? ' soon' : '') + '"><i>' + i + '</i>' + esc(b.t) + '</span>' : ''; }).join('');
       return '<button class="tocch2" type="button" data-go="' + c.first + '"'
            + ' style="--c:' + (CHCOLOR[ch] || 'var(--brand)') + '">'
            + '<span class="tt">' + esc(ch) + '</span>'

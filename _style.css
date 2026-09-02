@@ -441,12 +441,12 @@ footer p{margin:0 0 6px}
 .cycle{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:cy}
 .cycle li{counter-increment:cy;position:relative;padding:0 0 26px 46px}
 .cycle li:last-child{padding-bottom:0}
-.cycle li::before{content:counter(cy);position:absolute;left:0;top:-2px;width:30px;height:30px;
+.cycle li::before{content:counter(cy);position:absolute;left:0;top:0;width:30px;height:30px;
   border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;
   font-family:var(--serif);font-style:normal;font-weight:700;font-size:16px}
 .cycle li:not(:last-child)::after{content:"";position:absolute;left:14px;top:32px;bottom:6px;
   width:1px;background:var(--brand-soft)}
-.cycle b{display:block;font-family:var(--serif);font-size:17px;color:var(--ink);margin-bottom:3px}
+.cycle b{display:block;font-family:var(--serif);font-size:17px;line-height:30px;color:var(--ink);margin-bottom:3px} /* 제목 줄 높이 = 번호 원 지름 → 원과 글자의 세로 중심이 맞는다 (2026-09-02) */
 .cycle span{font-size:14px;color:var(--ink-soft);line-height:1.7}
 
 /* 출처 — 쪽 아래에 붙습니다 */
@@ -528,8 +528,13 @@ footer p{margin:0 0 6px}
 .tocch2 .tn{align-self:center;font-family:var(--serif);font-weight:700;white-space:nowrap;
   font-size:clamp(14px,1.05vw,18px);color:var(--c,var(--brand));
   background:var(--paper);border-radius:var(--r-pill);padding:5px 13px}
-.tocch2 .tl{grid-column:1/-1;font-size:clamp(12.5px,.9vw,14.5px);line-height:1.7;color:var(--ink-faint)}
-.tocch2 .tl i{font-style:normal;color:var(--line);margin:0 7px}
+/* 장 안의 쪽 제목 — 쪽번호를 앞세운 작은 차례. 점선 위에 2~3단으로 (2026-09-02) */
+.tocch2 .tl{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(15em,1fr));gap:3px 16px;
+  margin-top:2px;padding-top:9px;border-top:1px dashed var(--line);font-size:clamp(12.5px,.85vw,14px);line-height:1.5;color:var(--ink-soft)}
+.tocch2 .ti{display:flex;align-items:baseline;gap:7px;min-width:0}
+.tocch2 .ti i{flex:0 0 auto;font-style:normal;font-family:var(--serif);font-weight:700;font-size:.95em;min-width:1.6em;text-align:right;color:var(--c,var(--brand))}
+.tocch2 .ti.soon{color:var(--ink-faint)}
+.tocch2 .ti.soon i{opacity:.55}
 .tocch2:hover{transform:translateY(-2px);box-shadow:0 16px 30px -20px rgba(61,44,29,.55)}
 .tocch2:hover .tt{color:var(--brand)}
 
@@ -1003,9 +1008,9 @@ footer p{margin:0 0 6px}
 /* 설명 줄을 뺀 차례식 목록 — 네 단계만 큼직하게 (2026-09-02, 18쪽) */
 .cycle.bare li{padding:0 0 44px 62px}
 .cycle.bare li:last-child{padding-bottom:0}
-.cycle.bare li::before{width:40px;height:40px;font-size:18px;top:-6px}
+.cycle.bare li::before{width:40px;height:40px;font-size:18px;top:0}
 .cycle.bare li:not(:last-child)::after{left:19px;top:42px}
-.cycle.bare b{font-size:23px;margin:0}
+.cycle.bare b{font-size:23px;line-height:40px;margin:0}
 
 
 /* ── 3쪽 · 백 칸 격자와 교실 그림 (2026-09-02) ──
