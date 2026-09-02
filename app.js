@@ -244,17 +244,21 @@
     try { fitLive(); fitSpots(); fitFill(); } catch (e) {}   // build() 와 같은 순서 — fitFill 이 먼저 오면 데모 상자가 커진 뒤 여백이 남아 넘친다
     var tc = out.querySelector('.bkpage.toc-list'), hub = tc && tc.querySelector('#hub');
     if (hub) {
+      // 차례는 남는 높이만큼 통째로 키운다(글자·번호·여백이 함께 커짐, 최대 1.4배). 넘치면 조인 뒤 줄인다.
+      // (2026-09-02 사용자: «카드는 늘었는데 글자 크기는 그대로네» → 여백 대신 배율)
       hub.style.height = 'auto'; hub.style.zoom = ''; hub.classList.remove('tight');
-      var room = tc.clientHeight - hub.offsetTop - parseFloat(getComputedStyle(tc).paddingBottom || 0);
-      if (hub.scrollHeight > room) hub.classList.add('tight');
-      if (hub.scrollHeight > room) hub.style.zoom = Math.max(0.55, room / hub.scrollHeight);
-      else if (room > hub.scrollHeight) {
-        // 남는 높이는 카드 사이 틈이 아니라 카드 안 위아래 여백으로 똑같이 나눠 넣는다 — 카드가 커지고 글은 가운데 (2026-09-02 사용자 요청)
-        var cards = [].slice.call(hub.children), extra = (room - hub.scrollHeight) / (cards.length || 1);
-        cards.forEach(function (cd) { var cs = getComputedStyle(cd);
-          cd.style.paddingTop = ((parseFloat(cs.paddingTop) || 0) + extra / 2) + 'px';
-          cd.style.paddingBottom = ((parseFloat(cs.paddingBottom) || 0) + extra / 2) + 'px'; });
-        hub.style.height = room + 'px';
+      // 화면에서 고정한 격자 열 너비(px)는 확대하면 쪽 밖으로 삐져나간다 → 차례 안에서는 풀어 CSS(1fr auto·auto-fill)대로 다시 흐르게
+      hub.style.gridTemplateColumns = ''; hub.querySelectorAll('[style]').forEach(function (e) { e.style.gridTemplateColumns = ''; });
+      // ⚠️ 치수는 getBoundingClientRect(화면 px — 시트 zoom·차례 zoom 이 섞임)가 아니라 offset/client(요소 자기 css px)로 잰다.
+      //    room·need 는 쪽 좌표의 css px, 차례에 zoom z 를 걸면 차례 안 css px = 쪽 css px / z 이므로 높이는 room/z 를 넣는다.
+      var padB = parseFloat(getComputedStyle(tc).paddingBottom) || 0;
+      var room = tc.clientHeight - padB - hub.offsetTop, need = hub.offsetHeight;
+      if (need > room) { hub.classList.add('tight'); need = hub.offsetHeight; room = tc.clientHeight - padB - hub.offsetTop; }
+      var z = Math.max(0.55, Math.min(1.4, room / need));
+      for (var t = 0; t < 12; t++) {
+        hub.style.zoom = z; hub.style.height = (room / z) + 'px';
+        if (hub.scrollHeight <= hub.clientHeight + 1 || z <= 0.55) break;   // 확대로 줄 수가 늘어 넘치면 조금씩 줄인다
+        z -= 0.03;
       }
     }
     out.style.cssText = '';   // 다시 감춤 — 인쇄 매체에서만 보인다(#bk-print 규칙)
