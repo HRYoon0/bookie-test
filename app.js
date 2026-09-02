@@ -54,9 +54,9 @@
   // 차례 카드의 설명 줄은 대표님 지시로 뺐습니다 (2026-09-02). 되살리려면 buildToc 의 td 줄을 다시 넣으세요.
   var CHSUM = {
     '부기를 만든 이유':    '한 쪽에 모르는 낱말 서너 개면 아이는 멈춥니다. PISA 14.7%, 어휘 98% 임계값, 마태 효과, 상승 나선.',
-    '부기 학생 기능 소개': '낱말 뜻풀이, 모국어로 읽기, 원문과 재구성, 등장인물과의 대화, 12개 영역 진단, 소품과 서고, 우리 반 작품.',
-    '부기 교사 기능 소개': '온책읽기 8차시를 골라 담고, 여섯 자리 숫자로 아이들을 들이고, 상담에 쓸 기록을 받습니다.',
-    '부기 관리 기능 소개': '학교와 학급 현황에서 아이 한 명까지. 담임이 쓴 관찰노트는 이 화면에 오지 않습니다.',
+    '부기 학생 기능 소개': '낱말 뜻풀이, 원문과 재구성, 부기와의 대화, 아바타와 소품, 서고와 배지, 우리 반 작품.',
+    '부기 교사 기능 소개': '온책읽기 8차시를 골라 담고, 학급 코드로 아이들을 들이고, 상담에 쓸 기록을 받습니다.',
+    '부기 관리 기능 소개': '학교와 학급 현황에서 아이 한 명까지. 관리자는 조회만 하고 담당 학교 밖은 보지 못합니다.',
     '사용 후기와 신청':    '써 보신 뒤 사진과 후기를 남겨 주세요. 신청은 QR로 받습니다.'
   };
 
@@ -107,10 +107,10 @@
     { r:'/spiral',    t:'책 읽기의 상승 나선 효과',                  ch:'부기를 만든 이유' },
     { r:'/read',      t:'아이마다 다른 화면',         ch:'부기 학생 기능 소개' },
     { r:'/word',      t:'낱말 뜻은 그 자리에서',      ch:'부기 학생 기능 소개' },
-    { r:'/vi',        t:'다양한 언어를 지원합니다.',           ch:'부기 학생 기능 소개' },
+    { r:'/vi',        t:'다양한 언어로 읽기 (준비 중)',  ch:'부기 학생 기능 소개' },
     { r:'/level',     t:'원문, 재구성, 교훈',         ch:'부기 학생 기능 소개' },
-    { r:'/chat',      t:'등장인물과의 대화',       ch:'부기 학생 기능 소개' },
-    { r:'/diagnose',  t:'문해력 수준을 점검합니다.',        ch:'부기 학생 기능 소개' },
+    { r:'/chat',      t:'부기와의 대화',              ch:'부기 학생 기능 소개' },
+    { r:'/diagnose',  t:'문해력 수준 점검 (준비 중)',   ch:'부기 학생 기능 소개' },
     { r:'/fun',       t:'양치기 소년의 지팡이',       ch:'부기 학생 기능 소개' },
     { r:'/props',     t:'책마다 다른 소품',           ch:'부기 학생 기능 소개' },
     { r:'/shelf',     t:'나만의 서고 만들기',  ch:'부기 학생 기능 소개' },
@@ -118,7 +118,7 @@
     { r:'/next',      t:'안데르센에게 묻기',          ch:'부기 학생 기능 소개' },
     { r:'/teacher',   t:'온책읽기 8차시',             ch:'부기 교사 기능 소개' },
     { r:'/material',  t:'차시 PPT와 과정안',          ch:'부기 교사 기능 소개' },
-    { r:'/code',      t:'여섯 자리 입장 코드',        ch:'부기 교사 기능 소개' },
+    { r:'/code',      t:'학급 코드로 들어가기',        ch:'부기 교사 기능 소개' },
     { r:'/class',     t:'학생 독서현황 살펴보기',    ch:'부기 교사 기능 소개' },
     { r:'/admin',     t:'한눈에 보는 독서 현황',       ch:'부기 관리 기능 소개' },
     { r:'/apply',     t:'사용 후기 제출',             ch:'사용 후기와 신청' }
@@ -501,53 +501,68 @@
     b.classList.add('on'); paint2(b.dataset.mode); }); });
   paint2('orig');
 
-  /* ── 인물과 대화 ─────────────────────────── */
-  var ME = '<img src="assets/char-base2.webp" alt="">';
-  function av(label, color){ return '<span style="width:100%;height:100%;display:grid;place-items:center;background:'+color+'">'+label+'</span>'; }
+  /* ── 부기와 대화 ─────────────────────────────
+     실제 부기와 같은 얼개입니다. 부기가 지도안의 발문을 순서대로 건네고, 아이가 답하면
+     한 번만 되묻고 다음 발문으로 넘어갑니다. 여기서는 아이의 답을 칩으로 고릅니다. */
+  var ME = '<img src="assets/char-new-face.webp" alt="">';
+  var BK = '<img src="assets/char-new-face.webp" alt="">';
   var CHATS = {
-    tokki: { hd:'토끼와 거북이에게 물어보기',
-      open:[[av('토','#cf7150'),'안녕! 나는 토끼야. 궁금한 걸 물어봐.'],[av('거','#82a35e'),'나는 거북이야. 천천히 대답할게.']],
-      qa:[['토끼야, 너는 그렇게 빨라?',av('토','#cf7150'),'나는 타고난 달리기의 천재거든! (윙크)'],
-          ['거북아, 너는 안 힘들어?',av('거','#82a35e'),'조금 힘들지만, 포기하지 않고 걷다 보면 목적지에 도착할 수 있어!'],
-          ['토끼야, 낮잠 잘 때 무슨 생각 했어?',av('토','#cf7150'),'금방 일어나서 뛰면 된다고 생각했어… 그게 실수였지.'],
-          ['거북아, 지고 있을 때 마음이 어땠어?',av('거','#82a35e'),'앞이 안 보여도 내 걸음만 세었어. 그게 내가 할 수 있는 전부였거든.']] },
-    karen: { hd:'빨간 구두: 카렌과 대화하기',
-      open:[[av('카','#b4657f'),'안녕? 내 이야기를 다 아는구나? 응, 가난해서 신발 한 켤레도 없었어… 할머니가 데려가 주셨을 때 정말 기뻤지.']],
-      qa:[['카렌! 나는 너의 이야기를 읽고 있어. 할머니를 만나서 다행이야.',av('카','#b4657f'),'그치? 깨끗한 옷도 주시고… 그리고… 그 빨간 구두!'],
-          ['그 빨간 구두, 신었을 때 어떤 기분이었어?',av('카','#b4657f'),'발이 땅에 안 닿는 것 같았어. 모두가 나를 봐 주는 것 같았거든.'],
-          ['할머니가 편찮으셨을 때는 어땠어?',av('카','#b4657f'),'…부끄럽지만, 구두 생각이 먼저 났어. 그게 아직도 미안해.'],
-          ['지금 그때로 돌아간다면?',av('카','#b4657f'),'구두는 여전히 예쁠 거야. 다만 할머니 손을 먼저 잡을 것 같아.']] }
+    tokki: { hd:'<b>부기와 이야기 나누기</b><span>「토끼와 거북이」 2차시 · 인물 만나기 · 발문 3개</span>',
+      steps:[
+        { q:'토끼는 어떤 친구인 것 같아? 그렇게 생각한 까닭도 말해 줘.',
+          a:[['잘난 척을 많이 해. "내가 제일 빨라!" 하고 자랑했잖아.','맞아, 자랑하는 말에서 그런 마음이 보이지. 그럼 자랑을 들은 거북이는 기분이 어땠을까?'],
+             ['빠른 친구야. 진짜로 빠르니까.','빠른 건 사실이야. 그런데 빠른 걸 어떻게 말했는지도 떠올려 볼래?']] },
+        { q:'거북이는 어떤 친구야? 어디서 알 수 있었어?',
+          a:[['포기하지 않는 친구야. 느려도 계속 걸었으니까.','끝까지 걸은 걸 놓치지 않았네. 거북이가 시합하자고 한 까닭은 뭘까?'],
+             ['용감해. 토끼한테 먼저 시합하자고 했어.','먼저 말한 게 용감했다고 봤구나. 그때 거북이는 이길 수 있다고 생각했을까?']] },
+        { q:'너라면 토끼와 거북이 중 누구랑 친구가 되고 싶어?',
+          a:[['거북이. 약속을 지키고 끝까지 하니까.','그런 친구가 곁에 있으면 든든하지. 오늘 이야기는 여기까지야. 잘 이야기했어!'],
+             ['토끼. 같이 놀면 재미있을 것 같아.','재미있는 친구도 소중하지. 오늘 이야기는 여기까지야. 잘 이야기했어!']] } ] },
+    karen: { hd:'<b>부기와 이야기 나누기</b><span>「토끼와 거북이」 4차시 · 마음 헤아리기 · 발문 2개</span>',
+      steps:[
+        { q:'토끼가 나무 그늘에서 잠들 때, 마음속으로 무슨 생각을 했을까?',
+          a:[['"거북이는 한참 뒤에 있으니까 잠깐 자도 돼."','그렇게 믿었겠지. 그 믿음이 어떤 결과로 이어졌어?'],
+             ['"오늘은 정말 쉽게 이기겠다."','쉽게 이길 거라고 생각했구나. 그 생각이 토끼를 어떻게 만들었을까?']] },
+        { q:'결승선에 먼저 닿은 거북이는 어떤 마음이었을까?',
+          a:[['기뻤을 거야. 그리고 조금 놀랐을 것 같아.','기쁘고 놀란 마음, 둘 다 있었을 것 같아. 오늘 이야기는 여기까지야. 잘 이야기했어!'],
+             ['뿌듯했을 거야. 포기하지 않았으니까.','포기하지 않은 자기가 자랑스러웠겠지. 오늘 이야기는 여기까지야. 잘 이야기했어!']] } ] }
   };
-  var curChat = 'tokki', used = [];
+  var curChat = 'tokki', stepI = 0;
   function addMsg(who, face, text) {
     var d = document.createElement('div'); d.className = 'msg' + (who==='me' ? ' me' : '');
     d.innerHTML = '<span class="fa">'+face+'</span><span class="bb">'+esc(text)+'</span>';
     $('msgs').appendChild(d);
+    $('msgs').scrollTop = $('msgs').scrollHeight;
   }
   function renderAsks() {
-    var c = CHATS[curChat];
-    $('asks').innerHTML = c.qa.map(function (q,i) {
-      return '<button class="ask" type="button" data-q="'+i+'"'+(used.indexOf(i)>=0?' disabled':'')+'>'+esc(q[0])+'</button>'; }).join('');
+    var c = CHATS[curChat], st = c.steps[stepI];
+    if (!st) { $('asks').innerHTML = '<p class="askdone">대화가 끝났습니다. 이 대화는 아이의 서고에 「토끼와 거북이」 기록으로 남습니다.</p>'; return; }
+    $('asks').innerHTML = '<p class="askhint">내 답을 골라 보세요</p>' + st.a.map(function (q,i) {
+      return '<button class="ask" type="button" data-q="'+i+'">'+esc(q[0])+'</button>'; }).join('');
     $('asks').querySelectorAll('[data-q]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var i = +b.dataset.q; if (used.indexOf(i) >= 0) return;
-        used.push(i); addMsg('me', ME, c.qa[i][0]); renderAsks();
-        setTimeout(function(){ addMsg('ch', c.qa[i][1], c.qa[i][2]); $('msgs').scrollTop = $('msgs').scrollHeight; }, 420);
+        var pair = st.a[+b.dataset.q];
+        addMsg('me', ME, pair[0]); $('asks').innerHTML = '';
+        setTimeout(function(){ addMsg('ch', BK, pair[1]); stepI++;
+          var nx = c.steps[stepI];
+          if (nx) setTimeout(function(){ addMsg('ch', BK, nx.q); renderAsks(); }, 700); else renderAsks();
+        }, 420);
       });
     });
   }
   function loadChat(k) {
-    curChat = k; used = [];
+    curChat = k; stepI = 0;
     var c = CHATS[k];
     $('chatHd').innerHTML = c.hd;
     $('msgs').innerHTML = '';
-    c.open.forEach(function (o){ addMsg('ch', o[0], o[1]); });
+    addMsg('ch', BK, c.steps[0].q);
     renderAsks();
   }
   document.querySelectorAll('[data-ch]').forEach(function (b){ b.addEventListener('click', function () {
     document.querySelectorAll('[data-ch]').forEach(function(x){ x.classList.remove('on'); });
     b.classList.add('on'); loadChat(b.dataset.ch); }); });
   loadChat('tokki');
+
 
   /* ── 진단 5단계 ──────────────────────────── */
   var LV = [
@@ -640,28 +655,29 @@
   }
   renderModes(); renderSessions();
 
-  /* ── 6자리 코드 ──────────────────────────── */
+  /* ── 학급 코드 ────────────────────────────────
+     실제 흐름: 학급 코드(영문·숫자 여섯 자) → 명단에서 내 이름 → 짧은 비밀번호 → 우리 반. */
   var ins = [].slice.call(document.querySelectorAll('#digits input'));
   var codeBox = document.querySelector('.codebox');
   function codeReset() {
     ins.forEach(function (x){ x.value = ''; });
     codeBox.classList.remove('done'); $('codeIn').hidden = true;
-    $('codeReader').hidden = true; $('codeCard').hidden = false;
-    $('codeMsg').textContent = '숫자 여섯 개를 눌러 보세요';
+    $('codePick').hidden = false; $('codePw').hidden = true; $('codeCard').hidden = true;
+    $('codeReader').hidden = true; $('pwIn').value = '';
+    $('codeMsg').textContent = '영문·숫자 여섯 자를 넣어 보세요 (아무 글자나 됩니다)';
     ins[0].focus();
   }
   function codeCheck() {
     var v = ins.map(function(x){ return x.value; }).join('');
-    if (v.length === 6) {                     // 여섯 자리를 다 넣으면 학생 화면이 열립니다
+    if (v.length === 6) {                     // 여섯 자를 다 넣으면 명단이 열립니다
       codeBox.classList.add('done'); $('codeIn').hidden = false; fitLive();
     } else {
-      $('codeMsg').textContent = v.length===0 ? '숫자 여섯 개를 눌러 보세요' : v.length + ' / 6';
+      $('codeMsg').textContent = v.length===0 ? '영문·숫자 여섯 자를 넣어 보세요 (아무 글자나 됩니다)' : v.length + ' / 6';
     }
   }
   ins.forEach(function (el, i) {
     el.addEventListener('input', function () {
-      // 한 칸에 여러 자를 붙여 넣으면 뒤 칸으로 흘려 넣습니다
-      var d = el.value.replace(/\D/g,'');
+      var d = el.value.replace(/[^0-9a-zA-Z]/g,'').toLowerCase();
       el.value = d.slice(0,1);
       for (var k = 1; k < d.length && i+k < ins.length; k++) ins[i+k].value = d[k];
       var last = Math.min(i + Math.max(d.length,1), ins.length-1);
@@ -671,21 +687,26 @@
     el.addEventListener('focus', function (){ el.select(); });
     el.addEventListener('keydown', function (e){ if (e.key==='Backspace' && !el.value && i>0) ins[i-1].focus(); });
   });
+  document.querySelectorAll('#codePick .pick').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $('pwWho').textContent = b.dataset.name; $('cardWho').textContent = b.dataset.name;
+      $('codePick').hidden = true; $('codePw').hidden = false; $('pwIn').focus(); fitLive();
+    });
+  });
+  function pwGo() {
+    if ($('pwIn').value.length < 1) { $('pwIn').focus(); return; }
+    $('codePw').hidden = true; $('codeCard').hidden = false; fitLive();
+  }
+  $('pwGo').addEventListener('click', pwGo);
+  $('pwIn').addEventListener('keydown', function (e){ if (e.key==='Enter') pwGo(); });
   $('codeAgain').addEventListener('click', codeReset);
-  // '읽으러 가기'는 쪽을 옮기지 않고 이 쪽 안에서 읽기 화면을 엽니다 (2026-09-02)
+  // '읽으러 가기'는 쪽을 옮기지 않고 이 쪽 안에서 읽기 화면을 엽니다
   $('codeRead').addEventListener('click', function () {
     $('codeCard').hidden = true; $('codeReader').hidden = false; fitLive();
   });
   $('codeBack').addEventListener('click', function () {
     $('codeReader').hidden = true; $('codeCard').hidden = false; fitLive();
   });
-
-  /* ── 이름 정하기 ─────────────────────────── */
-  var ni = $('nameIn');
-  function setName(){ var v = ni.value.trim();
-    $('nameMsg').textContent = v ? '반가워요, '+v+'! 이제 첫 책을 고르러 가요.' : '이름을 지어 주면 부기가 기억해요.'; }
-  $('nameBtn').addEventListener('click', setName);
-  ni.addEventListener('keydown', function (e){ if (e.key==='Enter') setName(); });
 
   /* ── 전시장 ──────────────────────────────── */
   var TYPEICO = { '그림':'image', '독후감':'pen', '생각':'bulb' };
@@ -705,21 +726,18 @@
   }
   renderGal();
 
-  /* ── 학생 목록 닉네임 토글 ───────────────── */
-  var STU = [['책읽는토끼','이○희','#5b8def',12,1840,9,7],['느림보거북','이○연','#e8518f',15,2010,12,8],
-    ['별빛도서관','박○호','#f0a92e',5,680,3,4],['초록나무','최○윤','#3fae63',11,1720,7,7],
-    ['달려라햄스터','정○우','#8a6bd1',16,2150,14,8],['구름빵','강○린','#3aa6d8',9,1280,5,6],
-    ['호기심상자','윤○준','#f47a8b',7,920,4,5],['조용한바람','한○아','#2f9e8f',13,1880,8,7]];
-  var useNick = true;
+  /* ── 학생별 독서 요약 (교사 화면은 학생 이름으로 보입니다) ── */
+  var STU = [['김하늘','#5b8def',12,1840,9,7],['이서준','#e8518f',15,2010,12,8],
+    ['박다은','#f0a92e',5,680,3,4],['최윤우','#3fae63',11,1720,7,7],
+    ['정하린','#8a6bd1',16,2150,14,8],['강지호','#3aa6d8',9,1280,5,6],
+    ['윤서아','#f47a8b',7,920,4,5],['한도윤','#2f9e8f',13,1880,8,7]];
   function renderStu() {
-    $('stuList').innerHTML = STU.slice(0, 3).map(function (s){ var n = useNick ? s[0] : s[1];
-      return '<div class="stu"><span class="av" style="background:'+s[2]+'">'+n.charAt(0)+'</span>'
-        +'<span><b>'+esc(n)+'</b><span>완독 '+s[3]+'권 · 독서 스코어 '+s[4].toLocaleString()+' · 연속 '+s[5]+'일</span></span>'
-        +'<span class="lv2">Lv.'+s[6]+'</span></div>'; }).join('')
+    $('stuList').innerHTML = STU.slice(0, 3).map(function (s){ var n = s[0];
+      return '<div class="stu"><span class="av" style="background:'+s[1]+'">'+n.charAt(0)+'</span>'
+        +'<span><b>'+esc(n)+'</b><span>완독 '+s[2]+'권 · 독서 스코어 '+s[3].toLocaleString()+' · 연속 '+s[4]+'일</span></span>'
+        +'<span class="lv2">Lv.'+s[5]+'</span></div>'; }).join('')
       + '<p class="more-n">…이하 ' + (STU.length - 3) + '명이 더 있습니다.</p>';
   }
-  $('nickOn').addEventListener('click', function(){ useNick=true; this.classList.add('on'); $('nickOff').classList.remove('on'); renderStu(); });
-  $('nickOff').addEventListener('click', function(){ useNick=false; this.classList.add('on'); $('nickOn').classList.remove('on'); renderStu(); });
   renderStu();
 
   /* ── 기관 관리자 드릴다운 ────────────────── */
@@ -782,7 +800,7 @@
       av2.innerHTML = '<h3 style="font-size:22px;margin:0 0 4px">'+esc(c3[0])+'</h3>'
         +'<p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 18px">'+esc(s3.name)+' · 담임 '+esc(c3[1])+' · 학생 '+c3[2]+'명 · 완독 '+c3[3]+'권</p>'
         + (kids ? '<h3 style="font-size:18px;margin:0 0 4px">학급 아이들</h3><p style="font-size:13.5px;color:var(--ink-faint);margin:0 0 16px">아이를 누르면 개인 이력이 열립니다</p><div class="kids">'
-            + kids.map(function (k) { return '<div class="kid"><div class="ph"><img src="assets/char-base2.webp" alt="">'
+            + kids.map(function (k) { return '<div class="kid"><div class="ph"><img src="assets/char-new-face.webp" alt="">'
               +'<span class="cap" style="background:'+k[5]+'"></span></div>'
               +'<b>'+esc(k[0])+'</b><div class="lvp"><em>Lv.'+k[1]+'</em>'+k[2]+'P</div><div class="dn2">완독 '+k[3]+'권</div>'
               +'<div class="dt">최근 완독 '+k[4]+'</div></div>'; }).join('') + '</div>'
