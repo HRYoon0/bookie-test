@@ -85,7 +85,8 @@
 
   // 시험 사용 신청 메뉴는 대표님 지시로 잠시 뺌 (2026-08-24) — 다시 넣을 때:
   // + '<a href="#/apply" data-nav="/apply" style="color:var(--brand);font-weight:700">시험 사용 신청</a>'
-  $('topnav').innerHTML = '<a href="#/" data-nav="/">차례</a>';
+  $('topnav').innerHTML = '<a href="#/" data-nav="/">차례</a><button type="button" id="printBtn">인쇄</button>';
+  $('printBtn').addEventListener('click', function () { window.print(); });
 
   /* ── 라우터 ──────────────────────────────── */
   function go(r){ if (location.hash !== '#'+r) location.hash = r; else route(); }
@@ -168,7 +169,7 @@
     paper.innerHTML = '';
     host = document.createElement('div'); host.id = 'bk-flip';
     paper.appendChild(host);
-    var box = pageBox();
+    var box = pageBox(); lastBox = box;
     LEAVES.forEach(function (el) { el.style.width = box.pageW + 'px'; el.style.height = box.pageH + 'px'; host.appendChild(el); });
     pf = new St.PageFlip(host, {
       width: box.pageW, height: box.pageH, size: 'fixed',
@@ -196,6 +197,38 @@
      그 값으로 다음 자리를 셈하면 '이전'을 눌렀는데 앞으로 가는 일이 생깁니다.
      그래서 지금 가려는 낱쪽 번호를 따로 들고 다닙니다. */
   var want = 0;
+  var lastBox = null;
+
+  /* ── 인쇄: A4 가로 한 장에 펼침면 하나 ──────────
+     StPageFlip 은 펼쳐진 두 쪽만 보이게 하므로 그대로 인쇄하면 한 펼침면만 나온다.
+     인쇄 직전에 낱쪽을 **복제**해 두 장씩 .prsheet 로 묶고(원본은 넘김 판에 그대로 — 판의 그리기 루프가
+     destroy 뒤에도 원본에 display:none 을 다시 씌우므로 원본을 옮기면 안 된다), 화면 크기(lastBox) 그대로
+     A4 여백 안(281×194mm)에 들어가도록 zoom 으로 줄인다 — 화면과 같은 배치가 종이에 그대로 실린다.
+     인쇄가 끝나면 복제본만 지운다 (2026-09-02). */
+  function toPrint() {
+    if (document.body.classList.contains('printing')) return;
+    var box = lastBox || pageBox();
+    var PX = 96 / 25.4, z = Math.min(1, (281 * PX) / (box.pageW * 2), (194 * PX) / box.pageH) * 0.985;
+    var out = document.createElement('div'); out.id = 'bk-print';
+    for (var i = 0; i < LEAVES.length; i += 2) {
+      var sh = document.createElement('div'); sh.className = 'prsheet'; sh.style.zoom = z;
+      [LEAVES[i], LEAVES[i + 1]].forEach(function (el) {
+        if (!el) return;
+        var c = el.cloneNode(true);
+        c.style.cssText = 'display:block;position:relative;width:' + box.pageW + 'px;height:' + box.pageH + 'px';
+        sh.appendChild(c);
+      });
+      out.appendChild(sh);
+    }
+    document.body.appendChild(out);
+    document.body.classList.add('printing');
+  }
+  function fromPrint() {
+    var out = $('bk-print'); if (out) out.remove();
+    document.body.classList.remove('printing');
+  }
+  addEventListener('beforeprint', toPrint);
+  addEventListener('afterprint', fromPrint);
   function leafNow() { return want; }
   /* 앞뒤로 한 칸 옮기기.
      flipNext()/flipPrev() 는 turnToPage 로 옮긴 뒤에 방향이 어긋나는 일이 있어(2026-09-02 확인)
@@ -372,12 +405,16 @@
   function fitToc() {
     var p = document.querySelector('.bkpage.toc-list'), hub = $('hub');
     if (!p || !hub) return;
-    if (narrow()) { hub.style.height = 'auto'; return; }
+    hub.style.height = 'auto'; hub.style.zoom = ''; hub.classList.remove('tight');
+    if (narrow()) return;
     var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
     if (hidden) p.style.display = 'block';
-    hub.style.height = 'auto';
     var room = p.clientHeight - hub.offsetTop - parseFloat(getComputedStyle(p).paddingBottom || 0);
-    if (room > hub.scrollHeight) hub.style.height = room + 'px';
+    // 창이 낮아 다섯 장이 다 안 들어가면: ① 카드를 한 단계 조이고(.tight) ② 그래도 넘치면 통째로 줄인다.
+    // 어느 높이에서도 «사용 후기와 신청»까지 다 보여야 한다 (2026-09-02 사용자 지적).
+    if (hub.scrollHeight > room) hub.classList.add('tight');
+    if (hub.scrollHeight > room) hub.style.zoom = Math.max(0.55, room / hub.scrollHeight);
+    else if (room > hub.scrollHeight) hub.style.height = room + 'px';
     if (hidden) p.style.display = prev;
   }
   addEventListener('resize', fitToc);
