@@ -248,7 +248,14 @@
       var room = tc.clientHeight - hub.offsetTop - parseFloat(getComputedStyle(tc).paddingBottom || 0);
       if (hub.scrollHeight > room) hub.classList.add('tight');
       if (hub.scrollHeight > room) hub.style.zoom = Math.max(0.55, room / hub.scrollHeight);
-      else if (room > hub.scrollHeight) hub.style.height = room + 'px';
+      else if (room > hub.scrollHeight) {
+        // 남는 높이는 카드 사이 틈이 아니라 카드 안 위아래 여백으로 똑같이 나눠 넣는다 — 카드가 커지고 글은 가운데 (2026-09-02 사용자 요청)
+        var cards = [].slice.call(hub.children), extra = (room - hub.scrollHeight) / (cards.length || 1);
+        cards.forEach(function (cd) { var cs = getComputedStyle(cd);
+          cd.style.paddingTop = ((parseFloat(cs.paddingTop) || 0) + extra / 2) + 'px';
+          cd.style.paddingBottom = ((parseFloat(cs.paddingBottom) || 0) + extra / 2) + 'px'; });
+        hub.style.height = room + 'px';
+      }
     }
     out.style.cssText = '';   // 다시 감춤 — 인쇄 매체에서만 보인다(#bk-print 규칙)
     document.body.classList.add('printing');
