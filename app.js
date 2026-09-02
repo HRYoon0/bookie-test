@@ -209,16 +209,19 @@
   var PIN = ['font-size','line-height','letter-spacing','padding-top','padding-right','padding-bottom','padding-left',
              'margin-top','margin-right','margin-bottom','margin-left','row-gap','column-gap','grid-template-columns'];
   function pinStyles(src, dst) {
-    var a = src.querySelectorAll('*'), b = dst.querySelectorAll('*');
+    var a = [src].concat([].slice.call(src.querySelectorAll('*'))), b = [dst].concat([].slice.call(dst.querySelectorAll('*')));
     for (var i = 0; i < a.length && i < b.length; i++) {
       var cs = getComputedStyle(a[i]), st = b[i].style;
       for (var k = 0; k < PIN.length; k++) { var v = cs.getPropertyValue(PIN[k]); if (v) st.setProperty(PIN[k], v); }
-      if (a[i].tagName === 'IMG') { st.setProperty('height', cs.height); st.setProperty('width', cs.width); st.setProperty('max-height', cs.maxHeight); }
+      // 그림은 높이만 고정(폭까지 박으면 fitSpots 가 높이를 바꿀 때 비율이 깨진다)
+      if (a[i].tagName === 'IMG') { st.setProperty('height', cs.height); st.setProperty('max-height', cs.maxHeight); }
     }
   }
   function toPrint() {
     if (document.body.classList.contains('printing')) return;
-    var box = lastBox || pageBox(), W = box.pageW, H = box.pageH;
+    // 쪽 폭은 화면 그대로(글줄 바꿈·글자 크기가 화면과 같게), 높이는 큰 모니터에서 보이는 최대 비율(폭×1.32 — pageBox 의 상한).
+    // 그 펼침면 비율(1.52:1)이 A4 가로 여백(1.45:1)과 거의 같아 종이가 찬다. 맥북처럼 낮은 창에서 찍어도 결과가 같다.
+    var box = lastBox || pageBox(), W = box.pageW, H = Math.round(W * 1.32);
     var PX = 96 / 25.4, z = Math.min((281 * PX) / (W * 2), (194 * PX) / H) * 0.995;
     var out = document.createElement('div'); out.id = 'bk-print';
     for (var i = 0; i < LEAVES.length; i += 2) {
@@ -227,14 +230,27 @@
       [LEAVES[i], LEAVES[i + 1]].forEach(function (el) {
         if (!el) return;
         var c = el.cloneNode(true);
-        // 넘김 판이 보이는 쪽에 주는 상태(display:block)와 같게 — fitFill 등 화면 보정값이 그대로 맞는다
+        // 넘김 판이 보이는 쪽에 주는 상태(display:block)와 같게 — 화면과 같은 보정 함수가 그대로 맞는다
         c.style.cssText = 'display:block;position:relative;width:' + W + 'px;height:' + H + 'px';
         pinStyles(el, c);
         inn.appendChild(c);
       });
       out.appendChild(sh);
     }
+    // 복제본을 화면 밖에 잠깐 펼쳐 놓고, 화면과 같은 채움 보정(가운데 내림·삽화 높이·데모 축소·차례 벌림)을 인쇄 높이로 다시 잰다.
+    // fit* 는 document 의 모든 .bkpage 를 훑으므로 복제본도 함께 맞춰진다(원본은 같은 값이 다시 계산될 뿐).
+    out.style.cssText = 'display:block;position:absolute;left:-99999px;top:0;width:' + (W * 2) + 'px';
     document.body.appendChild(out);
+    try { fitLive(); fitSpots(); fitFill(); } catch (e) {}   // build() 와 같은 순서 — fitFill 이 먼저 오면 데모 상자가 커진 뒤 여백이 남아 넘친다
+    var tc = out.querySelector('.bkpage.toc-list'), hub = tc && tc.querySelector('#hub');
+    if (hub) {
+      hub.style.height = 'auto'; hub.style.zoom = ''; hub.classList.remove('tight');
+      var room = tc.clientHeight - hub.offsetTop - parseFloat(getComputedStyle(tc).paddingBottom || 0);
+      if (hub.scrollHeight > room) hub.classList.add('tight');
+      if (hub.scrollHeight > room) hub.style.zoom = Math.max(0.55, room / hub.scrollHeight);
+      else if (room > hub.scrollHeight) hub.style.height = room + 'px';
+    }
+    out.style.cssText = '';   // 다시 감춤 — 인쇄 매체에서만 보인다(#bk-print 규칙)
     document.body.classList.add('printing');
   }
   function fromPrint() {
@@ -385,7 +401,6 @@
     // 넘치는 쪽은 room 이 음수라 저절로 건너뜁니다.
     var nar = narrow();
     document.querySelectorAll('.bkpage').forEach(function (p) {
-      if (p.closest('#bk-print')) return;   // 인쇄 복제본은 flex 배치 그대로
       // 먼저 되돌리고 다시 잽니다 (첫 자식이든 둘째든 지난번에 넣은 값을 지웁니다)
       for (var i = 0; i < 2 && p.children[i]; i++) p.children[i].style.marginTop = '';
       if (!nar) {
