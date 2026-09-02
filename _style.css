@@ -35,7 +35,7 @@ a{color:var(--brand)}
 .hd nav{margin-left:auto;display:flex;gap:16px;font-size:13.5px}
 .hd nav a,.hd nav button{color:var(--ink-soft);text-decoration:none;white-space:nowrap;background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .hd nav a:hover,.hd nav button:hover{color:var(--brand)}
-@media(max-width:1000px){.hd nav{display:none}}
+@media screen and (max-width:1000px){.hd nav{display:none}}
 
 .hero{position:relative;background:var(--wall);color:var(--wall-ink);overflow:hidden}
 .hero::before{content:"";position:absolute;inset:0;opacity:.13;
@@ -53,7 +53,7 @@ a{color:var(--brand)}
 .ghost{color:var(--wall-ink);text-decoration:none;font-size:15px;border-bottom:1px solid rgba(246,242,228,.45);padding-bottom:3px}
 .hero-art{position:absolute;right:-20px;bottom:0;width:min(42%,430px);pointer-events:none}
 .hero-art img{width:100%;height:auto;display:block;mix-blend-mode:luminosity;opacity:.55}
-@media(max-width:900px){.hero-art{display:none}}
+@media screen and (max-width:900px){.hero-art{display:none}}
 .hstats{position:relative;border-top:1px solid rgba(246,242,228,.16);background:rgba(0,0,0,.14)}
 .hstats-in{display:flex;flex-wrap:wrap;gap:34px;padding:20px 0}
 .hs b{font-family:var(--serif);font-size:24px;color:var(--wall-ink);display:block;line-height:1.3}
@@ -91,7 +91,7 @@ h2{font-size:clamp(24px,3.4vw,36px);line-height:1.35;margin:0 0 18px}
 .pill.on{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
 .demo-body{padding:30px;background:var(--card)}
 .readwrap{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:28px;align-items:start}
-@media(max-width:760px){.readwrap{grid-template-columns:1fr}}
+@media screen and (max-width:760px){.readwrap{grid-template-columns:1fr}}
 .readwrap .pic{width:100%;border-radius:12px;border:1px solid var(--line);display:block}
 .rdr{font-family:var(--serif);font-size:19px;line-height:2.15;color:var(--ink);transition:font-size .18s var(--ease)}
 .rdr p{margin:0 0 6px;text-indent:.5em}
@@ -188,7 +188,7 @@ h2{font-size:clamp(24px,3.4vw,36px);line-height:1.35;margin:0 0 18px}
 .mat:hover{border-color:var(--brand);color:var(--brand)}
 .mat.send{border-color:var(--brand);color:var(--brand)}
 .mat.on{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
-@media(max-width:640px){.acts,.mats{margin-left:0}}
+@media screen and (max-width:640px){.acts,.mats{margin-left:0}}
 .guide{background:var(--surface-soft);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:14px}
 .guide h4{font-family:var(--serif);font-size:17px;color:var(--ink);margin:0 0 4px}
 .guide .gm{font-size:12.5px;font-weight:700;color:var(--c-orange);background:var(--amber-bg);border-radius:var(--r-pill);padding:3px 11px;display:inline-block;margin-bottom:10px}
@@ -199,7 +199,7 @@ h2{font-size:clamp(24px,3.4vw,36px);line-height:1.35;margin:0 0 18px}
 .qbox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .qbox .ql{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:5px}
 .qbox ul{margin:0;padding-left:16px;font-size:14px}
-@media(max-width:640px){.grow{grid-template-columns:1fr;gap:6px}}
+@media screen and (max-width:640px){.grow{grid-template-columns:1fr;gap:6px}}
 
 /* 코드 */
 .code{background:var(--wall);color:var(--wall-ink);padding:76px 0}
@@ -391,7 +391,7 @@ footer p{margin:0 0 6px}
 .cvshot{align-self:flex-start;max-width:100%}
 .cvshot img{display:block;width:auto;max-width:100%;height:min(352px,42vh);object-fit:contain;object-position:center}
 .cvnote{font-size:12px;letter-spacing:.04em;color:#9dc3a6;margin:0}
-@media(max-height:700px){
+@media screen and (max-height:700px){
   .cvshot img{height:min(210px,32vh)}
   .cvmark img{width:44px;height:44px}
 }
@@ -492,7 +492,7 @@ footer p{margin:0 0 6px}
 .fr2 img{width:100%;height:auto;max-height:min(46vh,460px);object-fit:contain;object-position:top;
   display:block;border-radius:10px;border:1px solid var(--line);background:var(--surface-soft)}
 .fr2 figcaption{font-size:13px;color:var(--ink-faint);margin-top:10px;line-height:1.7}
-@media(max-width:700px){.fr2{grid-template-columns:1fr}}
+@media screen and (max-width:700px){.fr2{grid-template-columns:1fr}}
 
 /* 어두운 쪽 */
 .bkpage.dark .ch{color:#9dc3a6}
@@ -673,7 +673,7 @@ footer p{margin:0 0 6px}
 .bkpage.live.dark{background:var(--wall)}
 .page.dark 
 /* 좁은 화면에서는 펼치지 않고 위아래로 */
-@media(max-width:900px){
+@media screen and (max-width:900px){
         .bkpage{padding:20px 22px;justify-content:flex-start}
   .art{padding:18px 20px}
   .art img{max-height:40vh}
@@ -697,13 +697,13 @@ footer p{margin:0 0 6px}
 .tochead{margin-bottom:20px}
 .tochead h1{font-size:clamp(23px,3vw,32px);margin-bottom:12px}
 .tochead .lead{font-size:15px;line-height:1.8;max-width:52em;margin-bottom:10px}
-@media(max-height:900px){
+@media screen and (max-height:900px){
   .tochead .lead{display:none}
   .tochead{margin-bottom:16px}
 }
 
 /* 학교 노트북처럼 세로가 짧은 화면 */
-@media(max-height:760px){
+@media screen and (max-height:760px){
     .bkpage h2{font-size:clamp(19px,2.4vw,25px);margin-bottom:10px}
   .say{font-size:14.5px;line-height:1.75;margin-bottom:14px}
   .ch{margin-bottom:7px}
@@ -738,7 +738,7 @@ footer p{margin:0 0 6px}
   .tochead .kick{margin-bottom:8px}
 }
 /* 세로가 아주 짧은 화면(1366x660 같은) — 한 단계 더 */
-@media(max-height:700px){
+@media screen and (max-height:700px){
   .bkpage{padding:20px 24px}
   .bkpage h2{font-size:clamp(17px,2.1vw,22px);margin-bottom:9px}
   .bkpage .say{font-size:13.5px;line-height:1.72;margin-bottom:11px}
@@ -778,7 +778,7 @@ footer p{margin:0 0 6px}
 .rl b{display:block;font-size:11.5px;color:var(--ink-faint);font-weight:400}
 .rl .folio{font-family:var(--serif);font-size:13.5px;color:var(--ink-faint);letter-spacing:.1em;white-space:nowrap}
 .rl .folio em{font-style:normal;color:var(--brand);font-weight:700}
-@media(max-width:640px){
+@media screen and (max-width:640px){
   .rl button span{display:none}
   .rl{padding:0 16px}
 }
@@ -835,7 +835,7 @@ footer p{margin:0 0 6px}
 .feature b{display:block;font-family:var(--serif);font-size:23px;color:var(--wall-ink);margin-bottom:8px;line-height:1.4}
 .feature span{display:block;font-size:15px;color:#cfd9c9;line-height:1.75;max-width:40em}
 .feature .arw2{position:relative;font-size:22px;color:var(--gold);flex:none}
-@media(max-width:640px){.feature{flex-direction:column;align-items:flex-start;gap:18px;padding:28px 24px}.feature .arw2{display:none}}
+@media screen and (max-width:640px){.feature{flex-direction:column;align-items:flex-start;gap:18px;padding:28px 24px}.feature .arw2{display:none}}
 
 .hubgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:16px}
 .hub{padding:24px 22px}
@@ -1070,7 +1070,7 @@ footer p{margin:0 0 6px}
 
 
 /* 화면이 낮으면(노트북 등) 3·5쪽 그림과 큰 숫자를 함께 줄여 쪽을 넘지 않게 (2026-09-02) */
-@media(max-height:960px){
+@media screen and (max-height:960px){
   .numrow{gap:18px}
   .dotbox{width:clamp(150px,16vw,215px)}
   .bignum b{font-size:clamp(40px,4.2vw,58px)}
@@ -1083,7 +1083,7 @@ footer p{margin:0 0 6px}
   .steps3>div{padding:10px 14px}
 }
 
-@media(max-height:700px){
+@media screen and (max-height:700px){
   .dotbox{width:clamp(118px,13vw,162px)}
   .dotbox span{font-size:11.5px}
   .room{max-height:20vh}
@@ -1116,14 +1116,14 @@ footer p{margin:0 0 6px}
 #hub.tight .tocch2 .tn{font-size:clamp(12.5px,.9vw,14px);padding:3px 10px}
 #hub.tight .tocch2 .tl{grid-template-columns:repeat(auto-fill,minmax(13em,1fr));gap:2px 14px;padding-top:7px;margin-top:0;font-size:12px;line-height:1.45}
 /* 화면이 낮으면 차례 카드도 함께 줄입니다 (2026-09-02) */
-@media(max-height:880px){
+@media screen and (max-height:880px){
   #hub{gap:8px}
   .tocch2{padding:12px 17px 11px}
   .tocch2 .tt{font-size:clamp(19px,1.4vw,24px)}
   .tocch2 .tn{font-size:clamp(13px,.95vw,15.5px);padding:4px 11px}
   .tocch2 .tl{font-size:clamp(12px,.82vw,13.5px);line-height:1.62}
 }
-@media(max-height:700px){
+@media screen and (max-height:700px){
   #hub{gap:6px}
   .tocch2{padding:9px 14px 8px;border-radius:11px;border-left-width:5px}
   .tocch2 .tt{font-size:clamp(17px,1.25vw,21px)}
@@ -1137,14 +1137,14 @@ footer p{margin:0 0 6px}
    쪽 안에서 세로로 스크롤되게 두었습니다. 억지로 다 욱여넣으면 글씨가 못 읽게 작아집니다.
    ══════════════════════════════════════════════ */
 /* 두 쪽으로 두기에는 폭이 빠듯한 화면(태블릿 가로 등)에서 차례 카드를 조금 더 줄입니다 */
-@media(max-width:1100px){
+@media screen and (max-width:1100px){
   #hub{gap:7px}
   .tocch2{padding:11px 15px 10px}
   .tocch2 .tt{font-size:clamp(18px,1.9vw,23px)}
   .tocch2 .tl{line-height:1.55}
 }
 
-@media (max-width:900px), (max-aspect-ratio:115/100){
+@media screen and (max-width:900px), screen and (max-aspect-ratio:115/100){
   .bookpaper{top:52px;bottom:58px;padding:8px 8px}
   .bkpage{padding:22px 20px;justify-content:flex-start;
     overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -1221,6 +1221,8 @@ footer p{margin:0 0 6px}
 
 /* ══════════════════════════════════════════════
    인쇄 — A4 가로 한 장에 펼침면 하나, 화면과 똑같이 (2026-09-02)
+   ⚠️ 위의 반응형 @media 는 전부 `screen and` 로 묶여 있다 — 크롬 인쇄 렌더러는 (max-width:900px)·(max-aspect-ratio:115/100)를
+   참으로 판정해 폰용 블록(#hub·.spot 의 height:auto!important 등)이 인쇄본을 덮어썼다(프로브 PDF로 확인).
    app.js 의 toPrint() 가 화면 폭×1.32 높이(큰 모니터 비율=A4 가로와 거의 같음) 복제본을 #bk-print > .prsheet > .prin 에 두 장씩 묶고
    .prin 의 zoom 으로 A4 여백 안에 맞춘다. 시트는 종이 높이(194mm)로 두고 세로 가운데.
    ══════════════════════════════════════════════ */
