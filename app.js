@@ -51,6 +51,7 @@
   var CHCOLOR = { '부기를 만든 이유': 'var(--gold)', '부기 학생 기능 소개': 'var(--g3)',
                   '부기 교사 기능 소개': 'var(--g5)', '부기 관리 기능 소개': 'var(--g6)',
                   '사용 후기와 신청': 'var(--brand)' };
+  // 차례 카드의 설명 줄은 대표님 지시로 뺐습니다 (2026-09-02). 되살리려면 buildToc 의 td 줄을 다시 넣으세요.
   var CHSUM = {
     '부기를 만든 이유':    '한 쪽에 모르는 낱말 서너 개면 아이는 멈춥니다. PISA 14.7%, 어휘 98% 임계값, 마태 효과, 상승 나선.',
     '부기 학생 기능 소개': '낱말 뜻풀이, 모국어로 읽기, 원문과 재구성, 등장인물과의 대화, 12개 영역 진단, 소품과 서고, 우리 반 작품.',
@@ -66,13 +67,17 @@
       if (!seen[b.ch]) { seen[b.ch] = { first: b.r, from: i, to: i }; order.push(b.ch); }
       else seen[b.ch].to = i;
     });
+    // 장 이름 아래에 그 장에 실린 쪽 제목을 그대로 깝니다 (2026-09-02).
+    // 지어낸 요약이 아니라 BOOK 배열의 제목이라 쪽을 고치면 차례도 따라옵니다.
     $('hub').innerHTML = order.map(function (ch) {
-      var c = seen[ch], range = c.from === c.to ? c.from : c.from + '–' + c.to;
+      var c = seen[ch], range = c.from === c.to ? c.from + '쪽' : c.from + '–' + c.to + '쪽';
+      var titles = BOOK.filter(function (b, i) { return i && b.ch === ch; })
+                       .map(function (b) { return esc(b.t); }).join('<i>·</i>');
       return '<button class="tocch2" type="button" data-go="' + c.first + '"'
            + ' style="--c:' + (CHCOLOR[ch] || 'var(--brand)') + '">'
            + '<span class="tt">' + esc(ch) + '</span>'
            + '<span class="tn">' + range + '</span>'
-           + '<span class="td">' + esc(CHSUM[ch] || '') + '</span>'
+           + '<span class="tl">' + titles + '</span>'
            + '</button>';
     }).join('');
   }
@@ -99,23 +104,23 @@
     { r:'/adults',    t:'학교를 떠난 뒤',             ch:'부기를 만든 이유' },
     { r:'/threshold', t:'모르는 낱말 2%',             ch:'부기를 만든 이유' },
     { r:'/matthew',   t:'마태 효과',                  ch:'부기를 만든 이유' },
-    { r:'/spiral',    t:'상승 나선',                  ch:'부기를 만든 이유' },
+    { r:'/spiral',    t:'책 읽기의 상승 나선 효과',                  ch:'부기를 만든 이유' },
     { r:'/read',      t:'아이마다 다른 화면',         ch:'부기 학생 기능 소개' },
     { r:'/word',      t:'낱말 뜻은 그 자리에서',      ch:'부기 학생 기능 소개' },
-    { r:'/vi',        t:'모국어로 읽는 쪽',           ch:'부기 학생 기능 소개' },
+    { r:'/vi',        t:'다양한 언어를 지원합니다.',           ch:'부기 학생 기능 소개' },
     { r:'/level',     t:'원문, 재구성, 교훈',         ch:'부기 학생 기능 소개' },
-    { r:'/chat',      t:'등장인물에게 말 걸기',       ch:'부기 학생 기능 소개' },
-    { r:'/diagnose',  t:'등수 없는 12개 영역',        ch:'부기 학생 기능 소개' },
+    { r:'/chat',      t:'등장인물과의 대화',       ch:'부기 학생 기능 소개' },
+    { r:'/diagnose',  t:'문해력 수준을 점검합니다.',        ch:'부기 학생 기능 소개' },
     { r:'/fun',       t:'양치기 소년의 지팡이',       ch:'부기 학생 기능 소개' },
     { r:'/props',     t:'책마다 다른 소품',           ch:'부기 학생 기능 소개' },
-    { r:'/shelf',     t:'6학년이 1학년 때 쓴 한 줄',  ch:'부기 학생 기능 소개' },
+    { r:'/shelf',     t:'나만의 서고 만들기',  ch:'부기 학생 기능 소개' },
     { r:'/gallery',   t:'우리 반 작품 보기',          ch:'부기 학생 기능 소개' },
     { r:'/next',      t:'안데르센에게 묻기',          ch:'부기 학생 기능 소개' },
     { r:'/teacher',   t:'온책읽기 8차시',             ch:'부기 교사 기능 소개' },
     { r:'/material',  t:'차시 PPT와 과정안',          ch:'부기 교사 기능 소개' },
     { r:'/code',      t:'여섯 자리 입장 코드',        ch:'부기 교사 기능 소개' },
-    { r:'/class',     t:'완독 권수와 연속 독서일',    ch:'부기 교사 기능 소개' },
-    { r:'/admin',     t:'평균 뒤의 아이 한 명',       ch:'부기 관리 기능 소개' },
+    { r:'/class',     t:'학생 독서현황 살펴보기',    ch:'부기 교사 기능 소개' },
+    { r:'/admin',     t:'한눈에 보는 독서 현황',       ch:'부기 관리 기능 소개' },
     { r:'/apply',     t:'사용 후기 제출',             ch:'사용 후기와 신청' }
   ];
   var LAST = BOOK.length - 1;
@@ -134,8 +139,17 @@
   var SPREADS = [];                                                // 펼침면 = 낱쪽 두 장
   LEAVES.forEach(function (el, i) { if (i % 2 === 0) SPREADS.push(el.dataset.spread); });
 
+  /* 폰·좁은 창에서는 두 쪽 펼침이 들어가지 않습니다. 한 쪽씩, 화면 폭을 다 씁니다.
+     이 값 하나로 넘김 판(StPageFlip)과 CSS(@media 760px)가 같은 기준을 봅니다. */
+  // 폭이 좁거나(폰) 화면이 세로로 길면(태블릿 세로) 두 쪽 펼침이 들어가지 않습니다.
+  // CSS 의 @media (max-width:900px),(max-aspect-ratio:115/100) 과 같은 기준입니다.
+  function narrow() { return innerWidth < 900 || innerWidth / innerHeight < 1.15; }
   function pageBox() {
     var w = paper.clientWidth - 32, h = paper.clientHeight - 28;
+    if (narrow()) {
+      // 한 쪽이 너무 넓어지면 글줄이 길어 읽기 나쁩니다. 680px 에서 멈추고 가운데 둡니다.
+      return { pageW: Math.max(260, Math.min(Math.floor(w), 680)), pageH: Math.max(420, Math.floor(h)) };
+    }
     var pageW = Math.floor(Math.min(w, 1460) / 2);
     var pageH = Math.min(h, Math.round(pageW * 1.32));
     return { pageW: Math.max(260, pageW), pageH: Math.max(320, pageH) };
@@ -148,7 +162,7 @@
     // requestAnimationFrame 이 아니라 setTimeout 인 이유: 창이 숨겨진 상태에서는 rAF 가 아예 돌지 않습니다.
     if (paper.clientWidth < 200 && buildTry < 20) { buildTry++; setTimeout(function(){ build(keep); }, 60); return; }
     buildTry = 0;
-    var idx = (keep && pf) ? pf.getCurrentPageIndex() : 0;
+    var idx = (keep && pf) ? want : 0;
     if (pf) { LEAVES.forEach(function (el){ stash.appendChild(el); }); try { pf.destroy(); } catch (e) {} pf = null; }
     paper.innerHTML = '';
     host = document.createElement('div'); host.id = 'bk-flip';
@@ -167,15 +181,42 @@
     pf.on('changeState', function (e) {
       try { var st = e && e.data; document.body.classList.toggle('is-flipping', !!st && st !== 'read'); } catch (_) {}
     });
-    if (idx > 0) { try { pf.turnToPage(Math.min(idx, pf.getPageCount() - 1)); } catch (e) {} }
+    want = Math.max(0, Math.min(idx, LEAVES.length - 1));
+    if (want > 0) { try { pf.turnToPage(want); } catch (e) {} }
     syncRail(); fitLive(); fitSpots(); fitFill(); fitToc();
   }
 
-  function spreadNow() { return pf ? Math.floor(pf.getCurrentPageIndex() / 2) : 0; }
+  function spreadNow() { return pf ? Math.floor(want / 2) : 0; }
+  /* 한 쪽씩 보는 화면에서는 낱쪽 하나씩 움직입니다.
+     StPageFlip 의 portrait 모드에서 flipNext()/flipPrev() 가 듣지 않아(2026-09-02 확인)
+     낱쪽 번호를 직접 세어 turnToPage 로 옮깁니다. 이걸 안 하면 오른쪽 쪽(글이 실린 쪽)에
+     아예 닿지 못합니다. */
+  /* 넘김이 끝나기 전에는 getCurrentPageIndex() 가 옛 값을 줍니다(넘김 650ms).
+     그 값으로 다음 자리를 셈하면 '이전'을 눌렀는데 앞으로 가는 일이 생깁니다.
+     그래서 지금 가려는 낱쪽 번호를 따로 들고 다닙니다. */
+  var want = 0;
+  function leafNow() { return want; }
+  /* 앞뒤로 한 칸 옮기기.
+     flipNext()/flipPrev() 는 turnToPage 로 옮긴 뒤에 방향이 어긋나는 일이 있어(2026-09-02 확인)
+     쓰지 않습니다. 갈 자리를 번호로 정해 놓고 그리로 보냅니다.
+     넓은 화면은 펼침면(낱쪽 두 장) 단위, 좁은 화면은 낱쪽 한 장 단위입니다. */
+  function goTo(i, animate) {
+    if (!pf) return;
+    want = Math.max(0, Math.min(i, LEAVES.length - 1));
+    try {
+      if (animate && typeof pf.flip === 'function') pf.flip(want);
+      else pf.turnToPage(want);
+    } catch (e) { try { pf.turnToPage(want); } catch (_) {} }
+    syncRail();
+    setTimeout(function () { onFlip(); }, 780);   // 넘김이 끝난 뒤 주소·넘김 줄을 맞춥니다
+  }
+  function stepNext() { if (!pf) return; goTo(narrow() ? leafNow() + 1 : (spreadNow() + 1) * 2, !narrow()); }
+  function stepPrev() { if (!pf) return; goTo(narrow() ? leafNow() - 1 : (spreadNow() - 1) * 2, !narrow()); }
   function goSpread(n) {
     if (!pf) return;
     n = Math.max(0, Math.min(n, SPREADS.length - 1));
-    try { pf.turnToPage(n * 2); } catch (e) {}
+    want = n * 2;
+    try { pf.turnToPage(want); } catch (e) {}
   }
   function onFlip() {
     var key = SPREADS[spreadNow()];
@@ -217,8 +258,28 @@
     + '<button class="nx" type="button"><b>다음</b><span></span></button></div>';
   var rPrev = rail.querySelector('.pv'), rNext = rail.querySelector('.nx'),
       rFolio = rail.querySelector('.folio');
-  rPrev.addEventListener('click', function(){ if (pf) pf.flipPrev(); });
-  rNext.addEventListener('click', function(){ if (pf) pf.flipNext(); });
+  rPrev.addEventListener('click', stepPrev);
+  rNext.addEventListener('click', stepNext);
+
+  /* ── 폰에서 좌우로 밀어 넘기기 (2026-09-02) ────
+     StPageFlip 의 자체 터치 처리는 꺼 두었습니다 — 켜면 쪽 위의 데모(수업 패널·코드칸·신청 폼)를
+     누를 수 없습니다. 그래서 '가로로 60px 넘게, 세로보다 확실히 많이' 민 것만 골라 직접 넘깁니다.
+     탭과 세로 스크롤은 그대로 둡니다. */
+  (function () {
+    var x0 = 0, y0 = 0, t0 = 0, on = false;
+    paper.addEventListener('touchstart', function (e) {
+      if (!narrow() || e.touches.length !== 1) { on = false; return; }
+      on = true; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+    }, { passive: true });
+    paper.addEventListener('touchend', function (e) {
+      if (!on || !pf) return;
+      on = false;
+      var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Date.now() - t0 > 800) return;                       // 천천히 끈 것은 넘김이 아닙니다
+      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.7) return;
+      if (dx < 0) stepNext(); else stepPrev();
+    }, { passive: true });
+  })();
   /* ── 장치를 쪽 크기에 맞춤 ────────────────────
      왼쪽 쪽에 얹은 실제 화면이 종이보다 크면, 스크롤 대신 통째로 줄여 앉힙니다.
      종이 위에 화면을 얹어 놓은 모양이 됩니다. */
@@ -248,10 +309,14 @@
         // 줄이기만 하지 않고 남는 만큼 키웁니다. 쪽을 가득 채워야 책처럼 보입니다.
         // 장치는 쪽 높이만큼 늘어나므로(CSS), 여기서는 넘칠 때만 줄입니다.
         var needH = box.scrollHeight, needW = box.scrollWidth;
-        var k = Math.min(needH > availH ? availH / needH : 1, needW > availW ? availW / needW : 1);
-        if (k < 0.99) box.style.zoom = Math.max(0.42, k).toFixed(3);
+        // 폰에서는 쪽이 세로로 스크롤되므로 가로만 맞춥니다. 세로까지 맞추면 글씨가 못 읽게 작아집니다.
+        var kW = needW > availW ? availW / needW : 1;
+        var k = narrow() ? kW : Math.min(needH > availH ? availH / needH : 1, kW);
+        // 0.99~1 사이를 그냥 두면 1%(6px쯤) 넘쳤습니다. 조금 더 줄여 딱 맞춥니다 (2026-09-02)
+        if (k < 1) box.style.zoom = Math.max(0.42, k * 0.995).toFixed(3);
       }
-      l.style.overflow = 'hidden';
+      // 폰에서는 쪽 안에서 세로로 넘겨 볼 수 있어야 합니다
+      l.style.overflow = narrow() ? '' : 'hidden';
       if (hidden) l.style.display = prev;
     });
   }
@@ -268,12 +333,17 @@
      그래서 여백은 첫 자식에 넣습니다. 자식의 style은 건드리지 않으니 살아남습니다.
      반드시 fitLive()·fitSpots() 뒤에 부를 것 — 앞서 부르면 장치 높이를 잘못 잽니다. */
   function fitFill() {
+    // 폰에서는 fitSpots·fitToc 이 쉬므로 모든 쪽을 여기서 가운데로 내립니다.
+    // 넘치는 쪽은 room 이 음수라 저절로 건너뜁니다.
+    var nar = narrow();
     document.querySelectorAll('.bkpage').forEach(function (p) {
       // 먼저 되돌리고 다시 잽니다 (첫 자식이든 둘째든 지난번에 넣은 값을 지웁니다)
       for (var i = 0; i < 2 && p.children[i]; i++) p.children[i].style.marginTop = '';
-      if (p.querySelector('.spot')) return;
-      if (p.classList.contains('bookcover') || p.classList.contains('toc-list')) return;
-      if (p.classList.contains('art') || p.classList.contains('wide')) return;
+      if (!nar) {
+        if (p.querySelector('.spot')) return;
+        if (p.classList.contains('bookcover') || p.classList.contains('toc-list')) return;
+        if (p.classList.contains('art') || p.classList.contains('wide')) return;
+      }
       var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
       if (hidden) p.style.display = 'block';
       var kids = [].slice.call(p.children).filter(function (e) {
@@ -301,6 +371,7 @@
   function fitToc() {
     var p = document.querySelector('.bkpage.toc-list'), hub = $('hub');
     if (!p || !hub) return;
+    if (narrow()) { hub.style.height = 'auto'; return; }
     var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
     if (hidden) p.style.display = 'block';
     hub.style.height = 'auto';
@@ -321,6 +392,7 @@
       // 도판 쪽(.art)의 큰 그림도 같은 방법으로 맞춥니다 (bleed 제외)
       if (!s && p.classList.contains('art') && !p.classList.contains('bleed')) s = p.querySelector('img');
       if (!s) return;
+      if (narrow()) { s.style.display = ''; s.style.height = ''; s.style.maxHeight = ''; return; }
       var hidden = getComputedStyle(p).display === 'none', prev = p.style.display;
       if (hidden) p.style.display = 'block';
       s.style.display = 'block'; s.style.maxHeight = 'none'; s.style.height = '2000px';
@@ -336,8 +408,14 @@
   function syncRail() {
     var i = pf ? spreadNow() : here();
     if (i < 0) i = 0;
-    rPrev.disabled = i <= 0;
-    rNext.disabled = i >= LAST;
+    if (narrow() && pf) {
+      var li = leafNow();
+      rPrev.disabled = li <= 0;
+      rNext.disabled = li >= LEAVES.length - 1;
+    } else {
+      rPrev.disabled = i <= 0;
+      rNext.disabled = i >= LAST;
+    }
     rPrev.querySelector('span').textContent = i > 0 ? '← ' + BOOK[i-1].t : '';
     rNext.querySelector('span').textContent = i < LAST ? BOOK[i+1].t + ' →' : '';
     rFolio.innerHTML = i ? '<em>' + i + '</em> / ' + LAST + ' 쪽' : '차례';
@@ -349,8 +427,8 @@
     var t = e.target;
     if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
     if (!pf) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); if (pf) pf.flipNext(); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); if (pf) pf.flipPrev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); stepNext(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); stepPrev(); }
   });
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-go]');
@@ -409,11 +487,11 @@
 
   /* ── 수준별 글 ───────────────────────────── */
   var MODES = {
-    orig:{ hint:'원문 — 원작의 문장과 호흡을 살려 읽는 글',
+    orig:{ hint:'원문: 원작의 문장과 호흡을 살려 읽는 글',
       html:'<p>카렌이라는 가난한 소녀가 있었다. 신발 한 켤레 없이 맨발로 다닐 만큼 어렵게 자랐는데, 어느 날 마음씨 좋은 늙은 부인이 외로운 카렌을 양딸로 거두어 곱게 길렀다. 부인은 카렌에게 깨끗한 옷과 신발을 사 주고 글도 가르쳤으며, 사람들은 카렌이 참 곱다고 칭찬했다.</p><p>그러던 어느 날, 카렌은 구둣방 진열장에서 새빨갛게 반짝이는 예쁜 가죽 구두를 보고 그만 마음을 온통 빼앗기고 말았다. 어찌나 갖고 싶었던지, 카렌은 눈이 어두운 양어머니를 졸라 기어이 그 빨간 구두를 손에 넣었다.</p>' },
-    easy:{ hint:'재구성 — 같은 장면을 학년 눈높이에 맞춰 다시 쓴 글',
+    easy:{ hint:'재구성: 같은 장면을 학년 눈높이에 맞춰 다시 쓴 글',
       html:'<p><span class="w" data-t="가난한" data-d="돈이나 물건이 넉넉하지 않은">가난한</span> 카렌이라는 소녀가 있었어요. 신발도 없이 <span class="w" data-t="맨발" data-d="아무것도 신지 않은 발">맨발</span>로 다녔죠. 어느 날, 마음씨 좋은 할머니가 외로운 카렌을 데려다 딸처럼 키워 주셨어요.</p><p>어느 날, 카렌은 반짝이는 <span class="w" data-t="새빨간" data-d="아주 짙고 선명한 빨간색의">새빨간</span> 가죽 구두를 보았어요. 너무 갖고 싶어서 할머니를 <span class="w" data-t="조르고 졸라" data-d="자꾸자꾸 해 달라고 부탁해서">조르고 졸라</span> 빨간 구두를 가지게 되었답니다.</p>' },
-    lesson:{ hint:'교훈 — 짧은 서평과 한 줄 정리',
+    lesson:{ hint:'교훈: 짧은 서평과 한 줄 정리',
       html:'<p>갖고 싶은 마음 자체가 잘못은 아닙니다. 다만 그 마음이 나를 어디까지 끌고 가는지는 살펴볼 필요가 있습니다.</p><p style="text-indent:0;margin-top:18px;color:var(--brand);font-weight:600">교훈 — 갖고 싶은 마음보다 먼저, 그 마음을 바라보는 눈이 필요하다.</p>' } };
   var rdr2 = $('rdr2');
   function paint2(m){ rdr2.innerHTML = MODES[m].html; $('hint2').textContent = MODES[m].hint; hideTip(); }
@@ -433,7 +511,7 @@
           ['거북아, 너는 안 힘들어?',av('거','#82a35e'),'조금 힘들지만, 포기하지 않고 걷다 보면 목적지에 도착할 수 있어!'],
           ['토끼야, 낮잠 잘 때 무슨 생각 했어?',av('토','#cf7150'),'금방 일어나서 뛰면 된다고 생각했어… 그게 실수였지.'],
           ['거북아, 지고 있을 때 마음이 어땠어?',av('거','#82a35e'),'앞이 안 보여도 내 걸음만 세었어. 그게 내가 할 수 있는 전부였거든.']] },
-    karen: { hd:'빨간 구두 — 카렌과 대화하기',
+    karen: { hd:'빨간 구두: 카렌과 대화하기',
       open:[[av('카','#b4657f'),'안녕? 내 이야기를 다 아는구나? 응, 가난해서 신발 한 켤레도 없었어… 할머니가 데려가 주셨을 때 정말 기뻤지.']],
       qa:[['카렌! 나는 너의 이야기를 읽고 있어. 할머니를 만나서 다행이야.',av('카','#b4657f'),'그치? 깨끗한 옷도 주시고… 그리고… 그 빨간 구두!'],
           ['그 빨간 구두, 신었을 때 어떤 기분이었어?',av('카','#b4657f'),'발이 땅에 안 닿는 것 같았어. 모두가 나를 봐 주는 것 같았거든.'],
@@ -488,8 +566,8 @@
     $('levels').querySelectorAll('[data-l]').forEach(function (b){
       b.addEventListener('click', function(){ curLv = +b.dataset.l; renderLv(); }); });
     var l = LV[curLv];
-    $('lvout').innerHTML = '<b>'+l[0]+' 단계 — '+esc(l[2])+'</b><p>'+esc(l[3])+'</p>'
-      + '<span class="give">「빨간 구두」를 이렇게 받습니다 — '+esc(l[4])+'</span>';
+    $('lvout').innerHTML = '<b>'+l[0]+' 단계: '+esc(l[2])+'</b><p>'+esc(l[3])+'</p>'
+      + '<span class="give">「빨간 구두」를 이렇게 받습니다: '+esc(l[4])+'</span>';
   }
   renderLv();
 
@@ -540,7 +618,7 @@
     var p = PLANS.filter(function(x){ return x.id===cur; })[0];
     $('sessions').innerHTML = '<p style="font-size:13px;color:var(--ink-faint);margin:18px 0 12px">'+esc(p.name)+' · <strong>지도안</strong>을 누르면 차시별 발문까지 볼 수 있습니다.</p>'
       + p.s.slice(0, SHOWN).map(function (s,i) {
-        return '<div class="sess"><div class="sess-h"><span class="sess-n">'+(i+1)+'</span><span><b>'+esc(s[0])+'</b><span>토끼와 거북이 — '+esc(s[1])+'</span></span></div>'
+        return '<div class="sess"><div class="sess-h"><span class="sess-n">'+(i+1)+'</span><span><b>'+esc(s[0])+'</b><span>토끼와 거북이: '+esc(s[1])+'</span></span></div>'
           +'<div class="acts">'+s[2].map(function(a){ return '<span class="act">'+esc(a)+'</span>'; }).join('')+'<span class="act plus">+ 활동 추가</span></div>'
           +'<div class="mats"><button class="mat" type="button">PPT</button><button class="mat" type="button">활동지</button>'
           +'<button class="mat guide-btn" type="button">지도안</button><button class="mat" type="button">미리보기</button>'
@@ -564,15 +642,42 @@
 
   /* ── 6자리 코드 ──────────────────────────── */
   var ins = [].slice.call(document.querySelectorAll('#digits input'));
+  var codeBox = document.querySelector('.codebox');
+  function codeReset() {
+    ins.forEach(function (x){ x.value = ''; });
+    codeBox.classList.remove('done'); $('codeIn').hidden = true;
+    $('codeReader').hidden = true; $('codeCard').hidden = false;
+    $('codeMsg').textContent = '숫자 여섯 개를 눌러 보세요';
+    ins[0].focus();
+  }
+  function codeCheck() {
+    var v = ins.map(function(x){ return x.value; }).join('');
+    if (v.length === 6) {                     // 여섯 자리를 다 넣으면 학생 화면이 열립니다
+      codeBox.classList.add('done'); $('codeIn').hidden = false; fitLive();
+    } else {
+      $('codeMsg').textContent = v.length===0 ? '숫자 여섯 개를 눌러 보세요' : v.length + ' / 6';
+    }
+  }
   ins.forEach(function (el, i) {
     el.addEventListener('input', function () {
-      el.value = el.value.replace(/\D/g,'').slice(0,1);
-      if (el.value && i < ins.length-1) ins[i+1].focus();
-      var v = ins.map(function(x){ return x.value; }).join('');
-      $('codeMsg').innerHTML = v.length===6 ? '들어왔어요! <strong style="color:#fff">1학년 1반</strong> · 오늘 읽을 책은 「토끼와 거북이」'
-        : (v.length===0 ? '숫자 여섯 개를 눌러 보세요' : v.length + ' / 6');
+      // 한 칸에 여러 자를 붙여 넣으면 뒤 칸으로 흘려 넣습니다
+      var d = el.value.replace(/\D/g,'');
+      el.value = d.slice(0,1);
+      for (var k = 1; k < d.length && i+k < ins.length; k++) ins[i+k].value = d[k];
+      var last = Math.min(i + Math.max(d.length,1), ins.length-1);
+      if (el.value) ins[last].focus();
+      codeCheck();
     });
+    el.addEventListener('focus', function (){ el.select(); });
     el.addEventListener('keydown', function (e){ if (e.key==='Backspace' && !el.value && i>0) ins[i-1].focus(); });
+  });
+  $('codeAgain').addEventListener('click', codeReset);
+  // '읽으러 가기'는 쪽을 옮기지 않고 이 쪽 안에서 읽기 화면을 엽니다 (2026-09-02)
+  $('codeRead').addEventListener('click', function () {
+    $('codeCard').hidden = true; $('codeReader').hidden = false; fitLive();
+  });
+  $('codeBack').addEventListener('click', function () {
+    $('codeReader').hidden = true; $('codeCard').hidden = false; fitLive();
   });
 
   /* ── 이름 정하기 ─────────────────────────── */
@@ -593,7 +698,7 @@
   function renderGal() {
     $('galfil').innerHTML = FIL.map(function (f){ return '<button class="pill'+(f===curF?' on':'')+'" type="button" data-f="'+f+'">'+f+'</button>'; }).join('');
     $('galfil').querySelectorAll('[data-f]').forEach(function (b){ b.addEventListener('click', function(){ curF = b.dataset.f; renderGal(); }); });
-    $('gcards').innerHTML = WORKS.filter(function(w){ return curF==='전체' || w[1]===curF; }).slice(0, 4).map(function (w) {
+    $('gcards').innerHTML = WORKS.filter(function(w){ return curF==='전체' || w[1]===curF; }).map(function (w) {
       return '<div class="gcard'+(w[5]?' mine':'')+'"><div class="th" style="background:'+w[4]+'">'
         +(w[5]?'<span class="mn">내 작품</span>':'')+'<span class="kind">'+w[1]+'</span>'+ico(TYPEICO[w[1]])+'</div>'
         +'<div class="bd"><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span><span class="lk">♥ '+w[3]+'</span></div></div>'; }).join('');
