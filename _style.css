@@ -1232,5 +1232,6 @@ footer p{margin:0 0 6px}
   .prsheet{display:flex;justify-content:center;align-items:flex-start;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
   .prsheet:last-child{break-after:auto;page-break-after:auto}
   .prsheet .bkpage{flex:0 0 auto;overflow:hidden;box-shadow:none}
+  .prsheet .bkpage.R[data-spread="apply"] .spot{display:none}   /* 24쪽 오른쪽만 A4 비율에서 59px 넘쳐 장식 삽화를 뺀다 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
