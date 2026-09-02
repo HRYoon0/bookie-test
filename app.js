@@ -199,54 +199,42 @@
   var want = 0;
   var lastBox = null;
 
-  /* ── 인쇄: A4 가로 한 장에 펼침면 하나 ──────────
+  /* ── 인쇄: A4 가로 한 장에 펼침면 하나, 화면과 똑같이 ──────────
      StPageFlip 은 펼쳐진 두 쪽만 보이게 하므로 그대로 인쇄하면 한 펼침면만 나온다.
-     인쇄 직전에 낱쪽을 **복제**해 두 장씩 .prsheet 로 묶고(원본은 넘김 판에 그대로 — 판의 그리기 루프가
-     destroy 뒤에도 원본에 display:none 을 다시 씌우므로 원본을 옮기면 안 된다), 화면 크기(lastBox) 그대로
-     A4 여백 안(281×194mm)에 들어가도록 zoom 으로 줄인다 — 화면과 같은 배치가 종이에 그대로 실린다.
-     인쇄가 끝나면 복제본만 지운다 (2026-09-02). */
+     인쇄 직전에 낱쪽을 **복제**해(원본은 넘김 판에 그대로 — 판의 그리기 루프가 원본 인라인 스타일을 되씌운다)
+     두 장씩 .prsheet 로 묶고, 화면 쪽 크기(lastBox) 그대로 A4 여백 안(281×194mm)에 들어가게 통째로 줄인다.
+     인쇄 매체에서는 vw 글자 크기·max-height 미디어쿼리가 화면과 달리 풀리므로, 화면에서 계산된 값
+     (글자 크기·행간·여백·간격·격자·그림 높이)을 복제본에 인라인으로 고정해 화면과 같은 모습으로 찍는다.
+     펼침면(대략 2.2:1)이 A4 가로(1.45:1)보다 납작해 위아래 띠가 남는 것은 화면과 같게 두는 대가다. (2026-09-02) */
+  var PIN = ['font-size','line-height','letter-spacing','padding-top','padding-right','padding-bottom','padding-left',
+             'margin-top','margin-right','margin-bottom','margin-left','row-gap','column-gap','grid-template-columns'];
+  function pinStyles(src, dst) {
+    var a = src.querySelectorAll('*'), b = dst.querySelectorAll('*');
+    for (var i = 0; i < a.length && i < b.length; i++) {
+      var cs = getComputedStyle(a[i]), st = b[i].style;
+      for (var k = 0; k < PIN.length; k++) { var v = cs.getPropertyValue(PIN[k]); if (v) st.setProperty(PIN[k], v); }
+      if (a[i].tagName === 'IMG') { st.setProperty('height', cs.height); st.setProperty('width', cs.width); st.setProperty('max-height', cs.maxHeight); }
+    }
+  }
   function toPrint() {
     if (document.body.classList.contains('printing')) return;
-    // 인쇄용 쪽은 A4 가로 여백 안(281×194mm)의 반쪽 실제 크기로 만든다 — 축소 없이 원래 글자 크기 그대로.
-    // 1123px 폭 창에서 화면이 짓는 쪽(545×720)과 거의 같은 크기라 CSS 가 이미 맞춰 둔 배치가 그대로 쓰인다.
-    // 화면 쪽을 통째로 줄이면 종이는 차도 내용이 작아져 여백만 남는다(2026-09-02 사용자 지적).
+    var box = lastBox || pageBox(), W = box.pageW, H = box.pageH;
+    var PX = 96 / 25.4, z = Math.min((281 * PX) / (W * 2), (194 * PX) / H) * 0.995;
     var out = document.createElement('div'); out.id = 'bk-print';
     for (var i = 0; i < LEAVES.length; i += 2) {
       var sh = document.createElement('div'); sh.className = 'prsheet';
+      var inn = document.createElement('div'); inn.className = 'prin'; inn.style.zoom = z; sh.appendChild(inn);
       [LEAVES[i], LEAVES[i + 1]].forEach(function (el) {
         if (!el) return;
         var c = el.cloneNode(true);
-        // 복제본은 넘김 판이 없으니 CSS 본래의 flex 세로 배치(왼쪽 쪽 가운데·글 쪽 위)를 그대로 쓴다.
-        // 원본에서 fitFill 이 넣은 marginTop(=display:block 보정)은 flex 와 겹쳐 두 번 내려가므로 지운다.
-        c.style.cssText = 'display:flex;position:relative;width:140.5mm;height:194mm';
-        for (var k = 0; k < 2 && c.children[k]; k++) c.children[k].style.marginTop = '';
-        sh.appendChild(c);
+        // 넘김 판이 보이는 쪽에 주는 상태(display:block)와 같게 — fitFill 등 화면 보정값이 그대로 맞는다
+        c.style.cssText = 'display:block;position:relative;width:' + W + 'px;height:' + H + 'px';
+        pinStyles(el, c);
+        inn.appendChild(c);
       });
       out.appendChild(sh);
     }
-    // 복제본을 화면 밖에 잠깐 펼쳐 놓고 채움 보정(삽화 높이·데모 축소·차례 벌림)을 인쇄 크기로 다시 잰다.
-    // fitSpots·fitLive 는 document 의 모든 .bkpage 를 훑으므로 복제본도 함께 맞춰진다.
-    out.style.cssText = 'display:block;position:absolute;left:-99999px;top:0;width:281mm';
     document.body.appendChild(out);
-    try { fitSpots(); fitLive(); } catch (e) {}
-    var tc = out.querySelector('.bkpage.toc-list'), hub = tc && tc.querySelector('#hub');
-    if (hub) {
-      hub.style.height = 'auto'; hub.style.zoom = ''; hub.classList.remove('tight');
-      var room = tc.clientHeight - hub.offsetTop - parseFloat(getComputedStyle(tc).paddingBottom || 0);
-      if (hub.scrollHeight > room) hub.classList.add('tight');
-      if (hub.scrollHeight > room) hub.style.zoom = Math.max(0.55, room / hub.scrollHeight);
-      else if (room > hub.scrollHeight) hub.style.height = room + 'px';
-    }
-    // 그래도 넘치는 쪽은 내용을 한 겹(.prfit)으로 감싸 5%씩 줄여 들어갈 때까지 (최소 60%)
-    out.querySelectorAll('.bkpage').forEach(function (c) {
-      if (c.scrollHeight <= c.clientHeight + 2) return;
-      var w = document.createElement('div'); w.className = 'prfit';
-      w.style.cssText = 'display:flex;flex-direction:column;justify-content:' + getComputedStyle(c).justifyContent + ';width:100%;height:100%;min-height:0';
-      while (c.firstChild) w.appendChild(c.firstChild);
-      c.appendChild(w);
-      for (var z = 1; z > 0.6 && c.scrollHeight > c.clientHeight + 2; z -= 0.05) w.style.zoom = z.toFixed(2);
-    });
-    out.style.cssText = '';   // 다시 감춤 — 인쇄 매체에서만 보인다(#bk-print 규칙)
     document.body.classList.add('printing');
   }
   function fromPrint() {

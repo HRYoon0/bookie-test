@@ -1220,8 +1220,9 @@ footer p{margin:0 0 6px}
 .askdone{font-size:13px;color:var(--brand);margin:6px 0 0;width:100%;line-height:1.6}
 
 /* ══════════════════════════════════════════════
-   인쇄 — A4 가로 한 장에 펼침면 하나 (2026-09-02)
-   app.js 의 toPrint() 가 낱쪽 복제본(140.5×194mm 실제 크기)을 #bk-print 안에 .prsheet 두 장씩으로 묶는다. 넘치는 쪽만 .prfit 으로 줄인다.
+   인쇄 — A4 가로 한 장에 펼침면 하나, 화면과 똑같이 (2026-09-02)
+   app.js 의 toPrint() 가 화면 쪽 크기의 복제본을 #bk-print > .prsheet > .prin 에 두 장씩 묶고
+   .prin 의 zoom 으로 A4 여백 안에 맞춘다. 시트는 종이 높이(194mm)로 두고 세로 가운데.
    ══════════════════════════════════════════════ */
 #bk-print{display:none}
 @page{size:A4 landscape;margin:8mm}
@@ -1229,8 +1230,9 @@ footer p{margin:0 0 6px}
   html,body{background:#fff!important;height:auto!important;overflow:visible!important}
   .hd,#rail,.tip,.bookpaper{display:none!important}
   body.printing #bk-print{display:block!important}
-  .prsheet{display:flex;justify-content:center;align-items:flex-start;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
+  .prsheet{height:194mm;display:flex;align-items:center;justify-content:center;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
   .prsheet:last-child{break-after:auto;page-break-after:auto}
-  .prsheet .bkpage{flex:0 0 auto;overflow:hidden;box-shadow:none}
+  .prin{display:flex}
+  .prin .bkpage{flex:0 0 auto;overflow:hidden;box-shadow:none}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
