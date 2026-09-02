@@ -207,30 +207,28 @@
      인쇄가 끝나면 복제본만 지운다 (2026-09-02). */
   function toPrint() {
     if (document.body.classList.contains('printing')) return;
-    var box = lastBox || pageBox();
-    // 인쇄용 쪽은 화면 폭은 그대로 두고(글줄 바꿈이 화면과 같게) 높이만 A4 가로 여백 비율(281:194)로 —
-    // 화면 펼침면은 종이보다 납작해서 그대로 줄이면 종이 아래 40%가 빈다(2026-09-02 사용자 지적).
-    var PX = 96 / 25.4, W = box.pageW, H = Math.round(W * 2 * 194 / 281);
-    var z = Math.min((281 * PX) / (W * 2), (194 * PX) / H) * 0.99;
+    // 인쇄용 쪽은 A4 가로 여백 안(281×194mm)의 반쪽 실제 크기로 만든다 — 축소 없이 원래 글자 크기 그대로.
+    // 1123px 폭 창에서 화면이 짓는 쪽(545×720)과 거의 같은 크기라 CSS 가 이미 맞춰 둔 배치가 그대로 쓰인다.
+    // 화면 쪽을 통째로 줄이면 종이는 차도 내용이 작아져 여백만 남는다(2026-09-02 사용자 지적).
     var out = document.createElement('div'); out.id = 'bk-print';
     for (var i = 0; i < LEAVES.length; i += 2) {
-      var sh = document.createElement('div'); sh.className = 'prsheet'; sh.style.zoom = z;
+      var sh = document.createElement('div'); sh.className = 'prsheet';
       [LEAVES[i], LEAVES[i + 1]].forEach(function (el) {
         if (!el) return;
         var c = el.cloneNode(true);
         // 복제본은 넘김 판이 없으니 CSS 본래의 flex 세로 배치(왼쪽 쪽 가운데·글 쪽 위)를 그대로 쓴다.
         // 원본에서 fitFill 이 넣은 marginTop(=display:block 보정)은 flex 와 겹쳐 두 번 내려가므로 지운다.
-        c.style.cssText = 'display:flex;position:relative;width:' + W + 'px;height:' + H + 'px';
+        c.style.cssText = 'display:flex;position:relative;width:140.5mm;height:194mm';
         for (var k = 0; k < 2 && c.children[k]; k++) c.children[k].style.marginTop = '';
         sh.appendChild(c);
       });
       out.appendChild(sh);
     }
-    // 복제본을 화면 밖에 잠깐 펼쳐 놓고 채움 보정(가운데 내림·삽화 높이·데모 축소·차례 벌림)을 새 높이로 다시 잰다.
-    // fit* 는 document 의 모든 .bkpage 를 훑으므로 복제본도 함께 맞춰진다.
-    out.style.cssText = 'display:block;position:absolute;left:-99999px;top:0;width:' + (W * 2) + 'px';
+    // 복제본을 화면 밖에 잠깐 펼쳐 놓고 채움 보정(삽화 높이·데모 축소·차례 벌림)을 인쇄 크기로 다시 잰다.
+    // fitSpots·fitLive 는 document 의 모든 .bkpage 를 훑으므로 복제본도 함께 맞춰진다.
+    out.style.cssText = 'display:block;position:absolute;left:-99999px;top:0;width:281mm';
     document.body.appendChild(out);
-    try { fitSpots(); fitLive(); } catch (e) {}   // fitFill 은 display:block 보정이라 복제본엔 안 쓴다(안에서도 #bk-print 는 건너뜀)
+    try { fitSpots(); fitLive(); } catch (e) {}
     var tc = out.querySelector('.bkpage.toc-list'), hub = tc && tc.querySelector('#hub');
     if (hub) {
       hub.style.height = 'auto'; hub.style.zoom = ''; hub.classList.remove('tight');
@@ -239,6 +237,15 @@
       if (hub.scrollHeight > room) hub.style.zoom = Math.max(0.55, room / hub.scrollHeight);
       else if (room > hub.scrollHeight) hub.style.height = room + 'px';
     }
+    // 그래도 넘치는 쪽은 내용을 한 겹(.prfit)으로 감싸 5%씩 줄여 들어갈 때까지 (최소 60%)
+    out.querySelectorAll('.bkpage').forEach(function (c) {
+      if (c.scrollHeight <= c.clientHeight + 2) return;
+      var w = document.createElement('div'); w.className = 'prfit';
+      w.style.cssText = 'display:flex;flex-direction:column;justify-content:' + getComputedStyle(c).justifyContent + ';width:100%;height:100%;min-height:0';
+      while (c.firstChild) w.appendChild(c.firstChild);
+      c.appendChild(w);
+      for (var z = 1; z > 0.6 && c.scrollHeight > c.clientHeight + 2; z -= 0.05) w.style.zoom = z.toFixed(2);
+    });
     out.style.cssText = '';   // 다시 감춤 — 인쇄 매체에서만 보인다(#bk-print 규칙)
     document.body.classList.add('printing');
   }

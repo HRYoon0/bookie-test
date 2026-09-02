@@ -1221,7 +1221,7 @@ footer p{margin:0 0 6px}
 
 /* ══════════════════════════════════════════════
    인쇄 — A4 가로 한 장에 펼침면 하나 (2026-09-02)
-   app.js 의 toPrint() 가 낱쪽 복제본을 #bk-print 안에 .prsheet 두 장씩으로 묶고 zoom 으로 A4 여백 안에 맞춘다.
+   app.js 의 toPrint() 가 낱쪽 복제본(140.5×194mm 실제 크기)을 #bk-print 안에 .prsheet 두 장씩으로 묶는다. 넘치는 쪽만 .prfit 으로 줄인다.
    ══════════════════════════════════════════════ */
 #bk-print{display:none}
 @page{size:A4 landscape;margin:8mm}
@@ -1232,6 +1232,5 @@ footer p{margin:0 0 6px}
   .prsheet{display:flex;justify-content:center;align-items:flex-start;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
   .prsheet:last-child{break-after:auto;page-break-after:auto}
   .prsheet .bkpage{flex:0 0 auto;overflow:hidden;box-shadow:none}
-  .prsheet .bkpage.R[data-spread="apply"] .spot{display:none}   /* 24쪽 오른쪽만 A4 비율에서 59px 넘쳐 장식 삽화를 뺀다 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
